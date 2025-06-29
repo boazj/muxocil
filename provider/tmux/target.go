@@ -9,20 +9,20 @@ import (
 type IdentifierKind string
 
 const (
-	ID       IdentifierKind = "id"
-	INDEX    IdentifierKind = "index"
-	NAME     IdentifierKind = "name"
-	TOKEN    IdentifierKind = "token"
-	SCRIPT   IdentifierKind = "script"
-	CURRENT  IdentifierKind = "current"
-	INFFERED IdentifierKind = "inffered"
+	idKind       IdentifierKind = "id"
+	indexKind    IdentifierKind = "index"
+	nameKind     IdentifierKind = "name"
+	tokenKind    IdentifierKind = "token"
+	scriptKind   IdentifierKind = "script"
+	currentKind  IdentifierKind = "current"
+	infferedKind IdentifierKind = "inffered"
 )
 
 var (
-	WINDOW_ALLOWED_TOKENS  = []string{"{start}", "{end}", "{last}", "{next}", "{previous}"}
-	WINDOW_ALLOWED_SHORT   = []string{"^", "$", "!"}
-	WINDOW_ALLOWED_PREFIXS = []string{"+", "-"}
-	PANE_ALLOWED_TOKENS    = []string{
+	WinAllowedTokens  = []string{"{start}", "{end}", "{last}", "{next}", "{previous}"}
+	WinAllowedShort   = []string{"^", "$", "!"}
+	WinAllowedPrefixs = []string{"+", "-"}
+	PaneAllowedTokens = []string{
 		"{last}",
 		"{next}",
 		"{previous}",
@@ -39,8 +39,8 @@ var (
 		"{left-of}",
 		"{right-of}",
 	}
-	PANE_ALLOWED_SHORT   = []string{"!"}
-	PANE_ALLOWED_PREFIXS = []string{"+", "-"}
+	PaneAllowedShort   = []string{"!"}
+	PaneAllowedPrefixs = []string{"+", "-"}
 )
 
 type identifier struct {
@@ -56,76 +56,76 @@ type (
 	PaneIdentifier    identifier
 )
 
-func Id(val uint64) protoIdentifier {
+func ID(val uint64) protoIdentifier {
 	return protoIdentifier{
 		value: strconv.FormatUint(val, 10),
-		kind:  ID,
+		kind:  idKind,
 	}
 }
 
 func Index(val uint64) protoIdentifier {
 	return protoIdentifier{
 		value: strconv.FormatUint(val, 10),
-		kind:  INDEX,
+		kind:  indexKind,
 	}
 }
 
 func Name(val string) protoIdentifier {
 	return protoIdentifier{
 		value: val,
-		kind:  NAME,
+		kind:  nameKind,
 	}
 }
 
 func Token(val string) protoIdentifier {
 	return protoIdentifier{
 		value: val,
-		kind:  TOKEN,
+		kind:  tokenKind,
 	}
 }
 
 func Script(val string) protoIdentifier {
 	return protoIdentifier{
 		value: val,
-		kind:  SCRIPT,
+		kind:  scriptKind,
 	}
 }
 
 func Current() protoIdentifier {
 	return protoIdentifier{
 		value: "",
-		kind:  CURRENT,
+		kind:  currentKind,
 	}
 }
 
 func Inffered() protoIdentifier {
 	return protoIdentifier{
 		value: "",
-		kind:  INFFERED,
+		kind:  infferedKind,
 	}
 }
 
 func (s *SessionIdentifier) String() string {
 	switch s.kind {
-	case ID:
+	case idKind:
 		if _, err := strconv.Atoi(s.value); err != nil {
 			panic(fmt.Sprintf("session id should be a number, found [%s]", s.value))
 		}
 		return fmt.Sprintf("$%s", s.value)
 
-	case NAME:
+	case nameKind:
 		// Avoid partioal match using the = sign
 		return fmt.Sprintf("=%s", s.value)
 
-	case SCRIPT:
+	case scriptKind:
 		if s.value == "" {
 			panic("session script value should be a valid string, found \"\"")
 		}
 		return s.value
 
-	case CURRENT:
+	case currentKind:
 		return ""
-	case INFFERED:
+	case infferedKind:
 		return ""
 	}
 	panic(fmt.Sprintf("session kind should be either of [id, name, script, current], found [%s]", s.kind))
@@ -133,33 +133,33 @@ func (s *SessionIdentifier) String() string {
 
 func (w *WindowIdentifier) String() string {
 	switch w.kind {
-	case ID:
+	case idKind:
 		if _, err := strconv.Atoi(w.value); err != nil {
 			panic(fmt.Sprintf("window id should be a number, found [%s]", w.value))
 		}
 		return fmt.Sprintf("@%s", w.value)
 
-	case INDEX:
+	case indexKind:
 		if _, err := strconv.Atoi(w.value); err != nil {
 			panic(fmt.Sprintf("window index should be a number, found [%s]", w.value))
 		}
 		return w.value
 
-	case NAME:
+	case nameKind:
 		// Avoid partioal match using the = sign
 		return fmt.Sprintf("=%s", w.value)
 
-	case SCRIPT:
+	case scriptKind:
 		if w.value == "" {
 			panic("window script value should be a valid string, found \"\"")
 		}
 		return w.value
 
-	case CURRENT:
+	case currentKind:
 		return ""
-	case INFFERED:
+	case infferedKind:
 		return ""
-	case TOKEN:
+	case tokenKind:
 		if !isValidWindowToken(w.value) {
 			panic(fmt.Sprintf("window token should be a legal value, found [%s]", w.value))
 		}
@@ -170,27 +170,27 @@ func (w *WindowIdentifier) String() string {
 
 func (p *PaneIdentifier) String() string {
 	switch p.kind {
-	case ID:
+	case idKind:
 		if _, err := strconv.Atoi(p.value); err != nil {
 			panic(fmt.Sprintf("pane id should be a number, found [%s]", p.value))
 		}
 		return fmt.Sprintf("%%%s", p.value)
 
-	case INDEX:
+	case indexKind:
 		if _, err := strconv.Atoi(p.value); err != nil {
 			panic(fmt.Sprintf("pane index should be a number, found [%s]", p.value))
 		}
 		return p.value
 
-	case SCRIPT:
+	case scriptKind:
 		if p.value == "" {
 			panic("pane script value should be a valid string, found \"\"")
 		}
 		return p.value
 
-	case CURRENT:
+	case currentKind:
 		return ""
-	case TOKEN:
+	case tokenKind:
 		if !isValidPaneToken(p.value) {
 			panic(fmt.Sprintf("pane token should be a legal value, found [%s]", p.value))
 		}
@@ -245,46 +245,46 @@ func (t *TargetSession) String() string {
 }
 
 func (t *TargetWindow) String() string {
-	if t.session.kind == CURRENT {
+	if t.session.kind == currentKind {
 		return t.window.String()
 	}
 	return fmt.Sprintf("%s:%s", t.session.String(), t.window.String())
 }
 
 func (t *TargetPane) String() string {
-	if t.session.kind == CURRENT && t.window.kind == CURRENT {
+	if t.session.kind == currentKind && t.window.kind == currentKind {
 		return t.pane.String()
 	}
-	if t.session.kind == CURRENT {
+	if t.session.kind == currentKind {
 		return fmt.Sprintf("%s.%s", t.window.String(), t.pane.String())
 	}
 	return fmt.Sprintf("%s:%s.%s", t.session.String(), t.window.String(), t.pane.String())
 }
 
 func (t *TargetSession) IsCurrent() bool {
-	return t.session.kind == CURRENT
+	return t.session.kind == currentKind
 }
 
 func (t *TargetWindow) IsCurrent() bool {
-	return t.session.kind == CURRENT && t.window.kind == CURRENT
+	return t.session.kind == currentKind && t.window.kind == currentKind
 }
 
 func (t *TargetPane) IsCurrent() bool {
-	return t.session.kind == CURRENT && t.window.kind == CURRENT && t.pane.kind == CURRENT
+	return t.session.kind == currentKind && t.window.kind == currentKind && t.pane.kind == currentKind
 }
 
 func isValidWindowToken(value string) bool {
 	if len(value) < 1 {
 		return false
 	}
-	if len(value) == 1 && slices.Contains(WINDOW_ALLOWED_SHORT, value) {
+	if len(value) == 1 && slices.Contains(WinAllowedShort, value) {
 		return true
 	}
-	if slices.Contains(WINDOW_ALLOWED_TOKENS, value) {
+	if slices.Contains(WinAllowedTokens, value) {
 		return true
 	}
 	prefix := value[:1]
-	if !slices.Contains(WINDOW_ALLOWED_PREFIXS, prefix) {
+	if !slices.Contains(WinAllowedPrefixs, prefix) {
 		return false
 	}
 	offset := value[1:]
@@ -298,14 +298,14 @@ func isValidPaneToken(value string) bool {
 	if len(value) < 1 {
 		return false
 	}
-	if len(value) == 1 && slices.Contains(PANE_ALLOWED_SHORT, value) {
+	if len(value) == 1 && slices.Contains(PaneAllowedShort, value) {
 		return true
 	}
-	if slices.Contains(PANE_ALLOWED_TOKENS, value) {
+	if slices.Contains(PaneAllowedTokens, value) {
 		return true
 	}
 	prefix := value[:1]
-	if !slices.Contains(PANE_ALLOWED_PREFIXS, prefix) {
+	if !slices.Contains(PaneAllowedPrefixs, prefix) {
 		return false
 	}
 	offset := value[1:]

@@ -1,3 +1,4 @@
+// Package iterm2 represents the provider for the iTerm2 Terminal Emulator
 package iterm2
 
 import "github.com/boazj/muxocil/common"

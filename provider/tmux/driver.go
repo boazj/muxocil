@@ -5,9 +5,9 @@ import "fmt"
 const CMD = "tmux"
 
 const (
-	WIN_ID         = "winid"
-	PANE_ID        = "paneid"
-	SESSION_WIN_ID = "sessionwinid"
+	WinID        = "winid"
+	PaneID       = "paneid"
+	SessionWinID = "sessionwinid"
 )
 
 func (t *Tmux) newSession(sessionName string, windowName string, rootDirectory string, focus bool) (TargetWindow, string) {
@@ -32,14 +32,14 @@ func (t *Tmux) newSession(sessionName string, windowName string, rootDirectory s
 	}
 	cmd := fmt.Sprintf(
 		"%s=\"$(%s new-session %s %s %s %s -P -F \"#{session_id}:#{window_id}\")\"",
-		SESSION_WIN_ID,
+		SessionWinID,
 		CMD,
 		focusFlag,
 		sessionNameFlag,
 		winNameFlag,
 		root,
 	)
-	target := NewTargetWindow(Inffered(), Script(fmt.Sprintf("$%s", SESSION_WIN_ID)))
+	target := NewTargetWindow(Inffered(), Script(fmt.Sprintf("$%s", SessionWinID)))
 	return target, cmd
 }
 
@@ -58,13 +58,13 @@ func (t *Tmux) newWindow(newName string, rootDirectory string, focus bool) (Targ
 	}
 	cmd := fmt.Sprintf(
 		"%s=\"$(%s new-window %s %s %s -P -F \"#{session_id}:#{window_id}\")\"",
-		WIN_ID,
+		WinID,
 		CMD,
 		focusFlag,
 		name,
 		root,
 	)
-	target := NewTargetWindow(Current(), Script(fmt.Sprintf("$%s", WIN_ID)))
+	target := NewTargetWindow(Current(), Script(fmt.Sprintf("$%s", WinID)))
 	return target, cmd
 }
 
@@ -177,13 +177,13 @@ func (t *Tmux) splitWindow(pane TargetPane, rootDirecotry string, vertical bool,
 	}
 	cmd := fmt.Sprintf(
 		"%s=\"$(%s split-window %s %s %s %s -P -F \"#{session_id}:#{window_id}.#{pane_id})\"",
-		PANE_ID,
+		PaneID,
 		CMD,
 		focusFlag,
 		direction,
 		srcTarget,
 		root,
 	)
-	target := NewTargetPane(Inffered(), Inffered(), Script(fmt.Sprintf("$%s", PANE_ID)))
+	target := NewTargetPane(Inffered(), Inffered(), Script(fmt.Sprintf("$%s", PaneID)))
 	return target, cmd
 }

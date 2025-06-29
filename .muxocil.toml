@@ -1,0 +1,56 @@
+[configuration]
+# List of locations to include in layout search, the order matters
+layout_search_locations = [ "$HOME/.teamocil" ]
+
+[providers]
+# Force usage of a specific provider. The value detailed here will be validated on execution:
+# 1. When `use_provider_fail_fast` is true - invalid values will fail-fast for non-supported values
+#    and defer to provider inffer process for runtime validation:
+#   1.1 When `validate_provider_from_env` is true - validate `use_provider` value via environment
+#   1.2 When `validate_provider_from_env` is false - trust the provided value. WARNING: unexpected behavior may occur
+# 2. When `use_provider_fail_fast` is false - invalid values will defer to the provider inffer process:
+#   2.1 When `inffer_provider_from_env` is true - infer provider from env
+#   2.2 When `inffer_provider_from_env` is false - behave the same way as if `use_provider_fail_fast` is true (#1)
+use_provider = ""
+# See: use_provider
+use_provider_fail_fast = true
+# See: use_provider
+validate_provider_from_env = true
+# Try and guess which provider is relevant for the current setup
+inffer_provider_from_env = true
+# When use_provider is set for one of the multiplexer application (contrary to a terminal 
+# emulator with native multiplexing capabilities) yet muxocil is not executed from that 
+# multiplexer application, then we have a fundemental clash. Example:
+#
+# Using WezTerm, tmux not running
+# muxocil configured for use_provider = "tmux"
+# Execute muxocil will generate a tmux script, without a proper tmux initial state
+#
+# When `launch_multiplexer_app` is set to true, muxocil will execute the multiplexer application
+# Whe `launch_multiplexer_app` is set to false, muxocil will be defensive and will fail-fast
+launch_multiplexer_app = false
+
+[layout]
+[layout.panes]
+# Render pane titles where defined (pane's title attribute) 
+# Available only if supported by the provider
+show_pane_title = true
+# Since some of the multiplexers and terminal emulators don't support whitespaces in pane title
+# the `pane_title_replace_whitespace` option lets you replace these whitespaces automatically with
+# the character defined in `pane_title_replace_whitespace_char`
+pane_title_replace_whitespace = false
+# See `pane_title_replace_whitespace`.
+# Notice:
+# * Can contain multiple characters
+# * Rendering considerations (like encoding, title length etc.) are delegated to the provider
+pane_title_replace_whitespace_char = "_"
+
+[layout.window]
+# When `ignore_window_layout` is true, the named layout present on the window will be ignored
+# and the active layout will be reused per provider behavior
+ignore_window_layout = false
+
+[layout.session]
+# When `replace_if_session_exists` is true, if muxocil recognizes the session is already active (by name)
+# then that session will be replaced 
+replace_if_session_exists = true

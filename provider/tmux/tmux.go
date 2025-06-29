@@ -1,3 +1,4 @@
+// Package tmux represents the provider for the tmux Multiplexr
 package tmux
 
 import (

@@ -1,3 +1,4 @@
+// Package wezterm represents the provider for the WezTerm Terminal Emulator
 package wezterm
 
 import "github.com/boazj/muxocil/common"

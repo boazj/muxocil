@@ -1,3 +1,4 @@
+// Package utils contains common utility functions for use across muxocil
 package utils
 
 import (

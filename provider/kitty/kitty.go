@@ -1,3 +1,4 @@
+// Package kitty represents the provider for the Kitty Terminal Emulator
 package kitty
 
 import "github.com/boazj/muxocil/common"

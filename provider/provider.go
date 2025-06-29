@@ -1,3 +1,4 @@
+// Package provider is the infrastructure for all multiplers and emulator providers
 package provider
 
 import (
@@ -16,19 +17,19 @@ import (
 )
 
 type (
-	MuxId     string
+	MuxID     string
 	Processor func(opts *common.CommandOpts) error
 )
 
 const (
-	Iterm2  MuxId = "iterm2"
-	Kitty   MuxId = "kitty"
-	Tmux    MuxId = "tmux"
-	Wezterm MuxId = "wezterm"
-	Zellij  MuxId = "zellij"
+	Iterm2  MuxID = "iterm2"
+	Kitty   MuxID = "kitty"
+	Tmux    MuxID = "tmux"
+	Wezterm MuxID = "wezterm"
+	Zellij  MuxID = "zellij"
 )
 
-var muxEnvHints = map[string]MuxId{
+var muxEnvHints = map[string]MuxID{
 	"TMUX":                Tmux,
 	"TMUX_PANE":           Tmux,
 	"ZELLIJ":              Zellij,
@@ -38,16 +39,16 @@ var muxEnvHints = map[string]MuxId{
 	"WEZTERM_EXECUTABLE":  Wezterm,
 }
 
-var terminalEnvTermHints = map[string]MuxId{
+var terminalEnvTermHints = map[string]MuxID{
 	"xterm-kitty": Kitty,
 }
 
-var terminalEnvProgramHints = map[string]MuxId{
+var terminalEnvProgramHints = map[string]MuxID{
 	"iTerm.app": Iterm2,
 	"WezTerm":   Wezterm,
 }
 
-func NewProvider(id MuxId, opts *common.CommandOpts) (Provider, error) {
+func NewProvider(id MuxID, opts *common.CommandOpts) (Provider, error) {
 	switch id {
 	case Iterm2:
 		p, err := iterm2.NewIterm2(opts)
@@ -69,7 +70,7 @@ func NewProvider(id MuxId, opts *common.CommandOpts) (Provider, error) {
 }
 
 func FromEnv(opts *common.CommandOpts) (Provider, error) {
-	exclude := make([]MuxId, 0)
+	exclude := make([]MuxID, 0)
 	if runtime.GOOS != "darwin" {
 		exclude = append(exclude, Iterm2)
 	}

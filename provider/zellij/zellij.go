@@ -1,3 +1,4 @@
+// Package zellij represents the provider for the Zellij Multiplexr
 package zellij
 
 import "github.com/boazj/muxocil/common"
