@@ -38,5 +38,6 @@
 # Credits
 
 A lot of the work in this project is based on 2 great open source tools that are, unfortunatley, years out of date (7 and 3 years respectively)
-[Teamocil](https://github.com/remi/teamocil) - By remi. The OG, The tool for preconfigured tmux layouts
-[iTermocil](https://github.com/TomAnthony/itermocil) - By TomAnthony. Uses Apple Script to control iTerm2 for macOS, Backward compatible with Teamocil
+
+- [Teamocil](https://github.com/remi/teamocil) - By remi. The OG, The tool for preconfigured tmux layouts
+- [iTermocil](https://github.com/TomAnthony/itermocil) - By TomAnthony. Uses Apple Script to control iTerm2 for macOS, Backward compatible with Teamocil
