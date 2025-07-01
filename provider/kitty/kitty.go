@@ -9,7 +9,7 @@ func NewKitty(opts *common.CommandOpts) (*Kitty, error) {
 	return nil, nil
 }
 
-func (k *Kitty) CreateLayout(layout *common.Layout) error {
+func (k *Kitty) CreateLayout(session *common.Session) error {
 	// TODO: impl
 	return nil
 }

@@ -48,12 +48,12 @@ func NewTmux(opts *common.CommandOpts) (*Tmux, error) {
 	return &t, nil
 }
 
-func (t *Tmux) CreateLayout(layout *common.Layout) error {
-	if layout.Name == "" {
+func (t *Tmux) CreateLayout(session *common.Session) error {
+	if session.Name == "" {
 		return nil
 	}
 	t.createSession = true
-	t.sessionName = layout.Name
+	t.sessionName = session.Name
 	return nil
 }
 

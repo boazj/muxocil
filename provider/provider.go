@@ -29,6 +29,36 @@ const (
 	Zellij  MuxID = "zellij"
 )
 
+type ProviderType string
+
+const (
+	Multiplexer = "Multiplexer"
+	Emulator    = "Emulator"
+)
+
+type OS string
+
+const (
+	Windows = "Windows"
+	MacOS   = "macOS"
+	Linux   = "Linux"
+)
+
+type MuxMD struct {
+	ID          MuxID
+	Display     string
+	Kind        ProviderType
+	SupportedOs []OS
+}
+
+var Providers = []MuxMD{
+	{Tmux, "tmux", Multiplexer, []OS{Windows, MacOS, Linux}},
+	{Zellij, "Zellij", Multiplexer, []OS{Windows, MacOS, Linux}},
+	{Iterm2, "iTerm2", Emulator, []OS{MacOS}},
+	{Kitty, "Kitty", Emulator, []OS{MacOS, Linux}},
+	{Wezterm, "WezTerm", Emulator, []OS{Windows, MacOS, Linux}},
+}
+
 var muxEnvHints = map[string]MuxID{
 	"TMUX":                Tmux,
 	"TMUX_PANE":           Tmux,
@@ -101,21 +131,21 @@ func FromEnv(opts *common.CommandOpts) (Provider, error) {
 	return nil, fmt.Errorf("cant recognize terminal emulator or multiplexer via env")
 }
 
-func NormalizeValidate(layout *common.Layout) error {
-	if len(layout.Windows) == 0 {
+func NormalizeValidate(session *common.Session) error {
+	if len(session.Windows) == 0 {
 		return fmt.Errorf("layout must have at least one window defined")
 	}
 
-	focusedWindows := gofn.Filter(layout.Windows, func(win common.Window) bool {
+	focusedWindows := gofn.Filter(session.Windows, func(win common.Window) bool {
 		return win.Focus
 	})
 	if len(focusedWindows) > 1 {
 		return fmt.Errorf("multiple focused windows found")
 	} else if len(focusedWindows) == 0 {
-		layout.Windows[len(layout.Windows)-1].Focus = true // If no window is marked for focus - mark the last one
+		session.Windows[len(session.Windows)-1].Focus = true // If no window is marked for focus - mark the last one
 	}
 
-	if len(gofn.Filter(layout.Windows, func(win common.Window) bool {
+	if len(gofn.Filter(session.Windows, func(win common.Window) bool {
 		return len(gofn.Filter(win.Panes, func(pane common.Pane) bool {
 			return pane.Focus
 		})) > 1
@@ -123,7 +153,7 @@ func NormalizeValidate(layout *common.Layout) error {
 		return fmt.Errorf("multiple focused panes found in the same window")
 	}
 
-	for _, win := range layout.Windows {
+	for _, win := range session.Windows {
 		if len(win.Panes) > 0 {
 			// panes before command and commands
 			win.Command = ""
@@ -151,15 +181,15 @@ func Proccessor(opts *common.CommandOpts) error {
 	}
 
 	// TODO: load yml
-	var layout *common.Layout = nil
-	err = NormalizeValidate(layout)
+	var session *common.Session = nil
+	err = NormalizeValidate(session)
 	if err != nil {
 		return fmt.Errorf("encountered issue validating yaml layout: %v", err)
 	}
-	if layout.Name != "" {
-		p.CreateLayout(layout)
+	if session.Name != "" {
+		p.CreateLayout(session)
 	}
-	for i, win := range layout.Windows {
+	for i, win := range session.Windows {
 		p.CreateWindow(&win, i)
 		for j, pane := range win.Panes {
 			p.CreatePane(&win, &pane, j)
@@ -169,7 +199,7 @@ func Proccessor(opts *common.CommandOpts) error {
 }
 
 type Provider interface {
-	CreateLayout(layout *common.Layout) error
+	CreateLayout(session *common.Session) error
 	CreateWindow(window *common.Window, index int) error
 	CreatePane(window *common.Window, pane *common.Pane, index int) error
 

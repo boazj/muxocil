@@ -9,7 +9,7 @@ func NewIterm2(opts *common.CommandOpts) (*Iterm2, error) {
 	return nil, nil
 }
 
-func (t *Iterm2) CreateLayout(layout *common.Layout) error {
+func (t *Iterm2) CreateLayout(session *common.Session) error {
 	// TODO: impl
 	return nil
 }

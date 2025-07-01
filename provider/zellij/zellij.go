@@ -9,7 +9,7 @@ func NewZellij(opts *common.CommandOpts) (*Zellij, error) {
 	return nil, nil
 }
 
-func (z *Zellij) CreateLayout(layout *common.Layout) error {
+func (z *Zellij) CreateLayout(session *common.Session) error {
 	// TODO: impl
 	return nil
 }

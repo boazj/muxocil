@@ -2,16 +2,19 @@
 
 - Project
   - [ ] Build
+    - [ ] Makefile
   - [ ] Lint
+    - [ ] .golangci.yaml
   - [ ] Test
   - [ ] Publish
+    - [ ] .goreleaser.yml
   - [ ] Logging
   - [w] Errors
 - Interface
   - [w] Command layout
   - [w] Command list
-    - [w] Providers
-    - [w] Layouts
+    - [x] Providers
+    - [x] Layouts
   - [w] Force Provider
   - [w] Configuration
     - [x] Config options

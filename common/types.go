@@ -1,7 +1,7 @@
 package common
 
 type CommandOpts struct {
-	Layout Layout
+	Layout Session
 
 	Here  bool
 	Show  bool

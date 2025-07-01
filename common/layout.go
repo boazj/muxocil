@@ -1,6 +1,6 @@
 package common
 
-type Layout struct { // Like Session of teamocil
+type Session struct { // Like Session of teamocil
 	Name    string   `yaml:"name"` // You won't have a session name in all cases
 	Windows []Window `yaml:"windows"`
 }

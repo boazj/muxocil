@@ -2,7 +2,9 @@
 package utils
 
 import (
+	"io/fs"
 	"os"
+	"path/filepath"
 )
 
 func GetEnvOr(primary string, secondary string) string {
@@ -16,4 +18,41 @@ func GetEnvOr(primary string, secondary string) string {
 func IsEnvExists(name string) bool {
 	_, exists := os.LookupEnv(name)
 	return exists
+}
+
+func IsDirectory(path string) (bool, error) {
+	fileInfo, err := os.Stat(path)
+	if err != nil {
+		return false, err
+	}
+
+	return fileInfo.IsDir(), err
+}
+
+func GetFilesRecursively(root string, filter func(string) bool) []string {
+	files := make([]string, 0)
+	filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if !d.IsDir() && filter(path) {
+			files = append(files, path)
+		}
+		return nil
+	})
+	return files
+}
+
+func walk(s string, d fs.DirEntry, err error) error {
+	if err != nil {
+		return err
+	}
+	if !d.IsDir() {
+		println(s)
+	}
+	return nil
+}
+
+func main() {
+	filepath.WalkDir("..", walk)
 }
