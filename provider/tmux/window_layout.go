@@ -72,6 +72,7 @@ func (l *nativeLayout) PlacePane(tmux *Tmux, window *common.Window, pane *common
 // |            |            |            |
 // |            |            |            |
 // '------------'------------'------------'
+
 type ThreeColumns struct{}
 
 func (l *ThreeColumns) PlacePane(tmux *Tmux, window *common.Window, pane *common.Pane, index int) error {
@@ -95,6 +96,7 @@ func (l *ThreeColumns) PlacePane(tmux *Tmux, window *common.Window, pane *common
 // |                  |                  |
 // |                  |                  |
 // '------------------'------------------'
+
 type DoubleMainHorizontal struct{}
 
 func (l *DoubleMainHorizontal) PlacePane(tmux *Tmux, window *common.Window, pane *common.Pane, index int) error {
@@ -117,6 +119,7 @@ func (l *DoubleMainHorizontal) PlacePane(tmux *Tmux, window *common.Window, pane
 // |           |             |           |
 // |           |             |           |
 // '-----------'-------------'-----------'
+
 type DoubleMainVertical struct{}
 
 func (l *DoubleMainVertical) PlacePane(tmux *Tmux, window *common.Window, pane *common.Pane, index int) error {

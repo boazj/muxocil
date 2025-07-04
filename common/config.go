@@ -1,6 +1,14 @@
+// Package common contains common types for muxocil
 package common
 
-import "github.com/spf13/viper"
+import (
+	"fmt"
+	"os"
+
+	"github.com/boazj/muxocil/utils"
+	"github.com/spf13/viper"
+	"github.com/tiendc/gofn"
+)
 
 const (
 	ConfSearchLocations               = "configuration.layout_search_locations"
@@ -57,4 +65,26 @@ func GetConfig() *Config {
 	conf.ReplaceIfSessionExists = viper.GetBool(LayoutSessionRepalceIfExists)
 
 	return &conf
+}
+
+func (c *Config) GetLayoutSearchLocations() []string {
+	elocs := gofn.MapSlice(c.LayoutSearchLocations, func(loc string) string {
+		return os.ExpandEnv(loc)
+	})
+
+	elocs = gofn.ToSet(elocs)
+	elocs = gofn.Filter(elocs, func(loc string) bool {
+		dir, err := utils.IsDirectory(loc)
+		if err != nil || !dir {
+			if os.IsNotExist(err) || !dir {
+				// TODO: warn
+				fmt.Printf("Configuration location %s does not exist or is not a directory\n", loc)
+				return false
+			} else {
+				return false
+			}
+		}
+		return true
+	})
+	return elocs
 }

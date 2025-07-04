@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strings"
 	"text/tabwriter"
 
 	"github.com/boazj/muxocil/common"
@@ -23,19 +22,9 @@ var listCmd = &cobra.Command{
 		fmt.Fprintln(w, "Path\tName\t")
 		fmt.Fprintln(w, "----------------------------\t-------------\t")
 
-		for _, loc := range cfg.LayoutSearchLocations {
-			eloc := os.ExpandEnv(loc)
-			dir, err := utils.IsDirectory(eloc)
-			if err != nil || !dir {
-				if os.IsNotExist(err) || !dir {
-					fmt.Printf("Configuration location %s does not exist or is not a directory\n", loc)
-					continue
-				} else {
-					panic(err)
-				}
-			}
-			layouts := utils.GetFilesRecursively(eloc, func(path string) bool {
-				return strings.HasSuffix(path, ".yaml")
+		for _, loc := range cfg.GetLayoutSearchLocations() {
+			layouts := utils.GetFilesRecursively(loc, func(path string) bool {
+				return utils.HasSuffix(path, ".yaml", ".yml")
 			})
 			for _, l := range layouts {
 				fmt.Fprintf(
