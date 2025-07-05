@@ -24,7 +24,8 @@ var bcCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		if path := viper.GetString("bc.layout"); path != "" {
 			if viper.GetBool("bc.edit") {
-				cmd := exec.Command(os.ExpandEnv("${EDITOR:-vi}"), path)
+				editor := utils.GetEnvOrLiteral("EDITOR", "vi")
+				cmd := exec.Command(editor, path) // #nosec G204
 				cmd.Stdin = os.Stdin
 				cmd.Stdout = os.Stdout
 				cmd.Stderr = os.Stderr
