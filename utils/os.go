@@ -23,7 +23,7 @@ func IsEnvExists(name string) bool {
 func IsDirectory(path string) (bool, error) {
 	fileInfo, err := os.Stat(path)
 	if err != nil {
-		return false, err
+		return false, Wrap(err, "failed to get stats for path")
 	}
 
 	return fileInfo.IsDir(), err
@@ -41,18 +41,4 @@ func GetFilesRecursively(root string, filter func(string) bool) []string {
 		return nil
 	})
 	return files
-}
-
-func walk(s string, d fs.DirEntry, err error) error {
-	if err != nil {
-		return err
-	}
-	if !d.IsDir() {
-		println(s)
-	}
-	return nil
-}
-
-func main() {
-	filepath.WalkDir("..", walk)
 }

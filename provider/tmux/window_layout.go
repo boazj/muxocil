@@ -10,6 +10,7 @@ type WindowLayoutStrategy interface {
 	PlacePane(tmux *Tmux, window *common.Window, pane *common.Pane, index int) error
 }
 
+//lint:ignore U1000 in dev
 var strategies = map[string]WindowLayoutStrategy{
 	"even-horizontal":          &nativeLayout{layout: "even-horizontal"},
 	"even-vertical":            &nativeLayout{layout: "even-vertical"},
@@ -29,10 +30,11 @@ type nativeLayout struct {
 	layout string
 }
 
+//lint:ignore U1000 in dev
 func (l *nativeLayout) PlacePane(tmux *Tmux, window *common.Window, pane *common.Pane, index int) error {
 	tWin := tmux.wins[window]
 	var cmd string
-	var tPane TargetPane
+	var tPane *TargetPane
 	// pane 0 already exists and configure by the window creation
 	if index != 0 {
 		tPane, cmd = tmux.splitWindow(
@@ -57,7 +59,8 @@ func (l *nativeLayout) PlacePane(tmux *Tmux, window *common.Window, pane *common
 
 // iterm - https://github.com/TomAnthony/itermocil/blob/master/LAYOUTS.md
 //
-//	3_columns - Creates 3 columns and then however many rows as needed. If the number of panes isn't divisible by 3 then the final row will have fewer columns.
+//	3_columns - Creates 3 columns and then however many rows as needed.
+//  If the number of panes isn't divisible by 3 then the final row will have fewer columns.
 //
 // .------------.------------.------------.
 // | (0)        | (1)        | (2)        |

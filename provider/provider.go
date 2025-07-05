@@ -82,19 +82,19 @@ func NewProvider(id MuxID, opts *common.CommandOpts) (Provider, error) {
 	switch id {
 	case Iterm2:
 		p, err := iterm2.NewIterm2(opts)
-		return p, err
+		return p, utils.Wrap(err, "failed to instantiate provider")
 	case Kitty:
 		p, err := kitty.NewKitty(opts)
-		return p, err
+		return p, utils.Wrap(err, "failed to instantiate provider")
 	case Tmux:
 		p, err := tmux.NewTmux(opts)
-		return p, err
+		return p, utils.Wrap(err, "failed to instantiate provider")
 	case Wezterm:
 		p, err := wezterm.NewWezterm(opts)
-		return p, err
+		return p, utils.Wrap(err, "failed to instantiate provider")
 	case Zellij:
 		p, err := zellij.NewZellij(opts)
-		return p, err
+		return p, utils.Wrap(err, "failed to instantiate provider")
 	}
 	return nil, fmt.Errorf("unsupported multiplexer identifier: %s", id)
 }
@@ -136,7 +136,7 @@ func NormalizeValidate(session *common.Session) error {
 		return fmt.Errorf("layout must have at least one window defined")
 	}
 
-	focusedWindows := gofn.Filter(session.Windows, func(win common.Window) bool {
+	focusedWindows := gofn.Filter(session.Windows, func(win *common.Window) bool {
 		return win.Focus
 	})
 	if len(focusedWindows) > 1 {
@@ -145,8 +145,8 @@ func NormalizeValidate(session *common.Session) error {
 		session.Windows[len(session.Windows)-1].Focus = true // If no window is marked for focus - mark the last one
 	}
 
-	if len(gofn.Filter(session.Windows, func(win common.Window) bool {
-		return len(gofn.Filter(win.Panes, func(pane common.Pane) bool {
+	if len(gofn.Filter(session.Windows, func(win *common.Window) bool {
+		return len(gofn.Filter(win.Panes, func(pane *common.Pane) bool {
 			return pane.Focus
 		})) > 1
 	})) > 1 {
@@ -164,7 +164,7 @@ func NormalizeValidate(session *common.Session) error {
 			win.Command = "" // to avoid confusion
 		}
 
-		if len(gofn.Filter(win.Panes, func(pane common.Pane) bool {
+		if len(gofn.Filter(win.Panes, func(pane *common.Pane) bool {
 			return pane.Focus
 		})) == 0 {
 			win.Panes[len(win.Panes)-1].Focus = true // If no pane within the window is marked for focus - mark the last one
@@ -190,9 +190,9 @@ func Proccessor(opts *common.CommandOpts) error {
 		p.CreateLayout(session)
 	}
 	for i, win := range session.Windows {
-		p.CreateWindow(&win, i)
+		p.CreateWindow(win, i)
 		for j, pane := range win.Panes {
-			p.CreatePane(&win, &pane, j)
+			p.CreatePane(win, pane, j)
 		}
 	}
 	return nil

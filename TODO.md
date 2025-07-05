@@ -1,10 +1,10 @@
 # Milestone 1
 
 - Project
-  - [ ] Build
-    - [ ] Makefile
-  - [ ] Lint
-    - [ ] .golangci.yaml
+  - [x] Build
+    - [x] Makefile
+  - [x] Lint
+    - [x] .golangci.yaml
   - [ ] Test
   - [ ] Publish
     - [ ] .goreleaser.yml

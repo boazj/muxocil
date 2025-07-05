@@ -1,12 +1,14 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"os/exec"
 
 	"github.com/boazj/muxocil/common"
 	"github.com/boazj/muxocil/utils"
+	"github.com/charmbracelet/log"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -26,8 +28,11 @@ var bcCmd = &cobra.Command{
 				cmd.Stdin = os.Stdin
 				cmd.Stdout = os.Stdout
 				cmd.Stderr = os.Stderr
-				cmd.Run()
-				os.Exit(0)
+				if err := cmd.Run(); err != nil {
+					log.Error("Encountered an error while opening $EDITOR", err)
+					os.Exit(common.ExitOpenEditorError)
+				}
+				os.Exit(common.ExitOk)
 				return
 			}
 			// TODO:
@@ -43,9 +48,7 @@ var bcCmd = &cobra.Command{
 			cfg.LayoutSearchLocations = append(cfg.LayoutSearchLocations, TEAMOCIL, ITERMOCIL)
 
 			for _, loc := range cfg.GetLayoutSearchLocations() {
-				layouts := utils.GetFilesRecursively(loc, func(path string) bool {
-					return utils.IsYaml(path)
-				})
+				layouts := utils.GetFilesRecursively(loc, utils.IsYaml)
 				for _, l := range layouts {
 					fmt.Printf("%s\n", utils.GetFileNamePart(l))
 				}
@@ -63,20 +66,15 @@ func init() {
 	bcCmd.Flags().Bool("show", false, "Shows the layout content instead of executing it")
 	bcCmd.Flags().Bool("list", false, "Lists all available layouts in ~/.itermocil, ~/.teamocil & locations per configuration file")
 
-	if err := viper.BindPFlag("bc.layout", bcCmd.Flags().Lookup("layout")); err != nil {
-		panic(fmt.Sprintf("failed to bind config: %v", err))
-	}
-	if err := viper.BindPFlag("bc.here", bcCmd.Flags().Lookup("here")); err != nil {
-		panic(fmt.Sprintf("failed to bind config: %v", err))
-	}
-	if err := viper.BindPFlag("bc.edit", bcCmd.Flags().Lookup("edit")); err != nil {
-		panic(fmt.Sprintf("failed to bind config: %v", err))
-	}
-	if err := viper.BindPFlag("bc.show", bcCmd.Flags().Lookup("show")); err != nil {
-		panic(fmt.Sprintf("failed to bind config: %v", err))
-	}
-	if err := viper.BindPFlag("bc.list", bcCmd.Flags().Lookup("list")); err != nil {
-		panic(fmt.Sprintf("failed to bind config: %v", err))
+	err1 := viper.BindPFlag("bc.layout", bcCmd.Flags().Lookup("layout"))
+	err2 := viper.BindPFlag("bc.here", bcCmd.Flags().Lookup("here"))
+	err3 := viper.BindPFlag("bc.edit", bcCmd.Flags().Lookup("edit"))
+	err4 := viper.BindPFlag("bc.show", bcCmd.Flags().Lookup("show"))
+	err5 := viper.BindPFlag("bc.list", bcCmd.Flags().Lookup("list"))
+
+	if err := errors.Join(err1, err2, err3, err4, err5); err != nil {
+		log.Error("Failed to bind config", "err", err)
+		os.Exit(common.ExitConfigBindError)
 	}
 }
 

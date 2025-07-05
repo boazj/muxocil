@@ -68,9 +68,7 @@ func GetConfig() *Config {
 }
 
 func (c *Config) GetLayoutSearchLocations() []string {
-	elocs := gofn.MapSlice(c.LayoutSearchLocations, func(loc string) string {
-		return os.ExpandEnv(loc)
-	})
+	elocs := gofn.MapSlice(c.LayoutSearchLocations, os.ExpandEnv)
 
 	elocs = gofn.ToSet(elocs)
 	elocs = gofn.Filter(elocs, func(loc string) bool {

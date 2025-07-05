@@ -20,7 +20,7 @@ type Tmux struct {
 	createSession bool
 	sessionName   string
 
-	wins map[*common.Window]TargetWindow
+	wins map[*common.Window]*TargetWindow
 
 	cmds []string
 }
@@ -39,7 +39,7 @@ func NewTmux(opts *common.CommandOpts) (*Tmux, error) {
 	t := Tmux{
 		opts:          opts,
 		cmds:          make([]string, 0),
-		wins:          make(map[*common.Window]TargetWindow),
+		wins:          make(map[*common.Window]*TargetWindow),
 		createSession: false,
 		baseIndex:     baseIndex,
 		paneBaseIndex: paneBaseIndex,
@@ -58,7 +58,7 @@ func (t *Tmux) CreateLayout(session *common.Session) error {
 }
 
 func (t *Tmux) CreateWindow(window *common.Window, index int) error {
-	var tWin TargetWindow
+	var tWin *TargetWindow
 	var cmd string
 	if index == 0 && t.createSession {
 		tWin, cmd = t.newSession(t.sessionName, window.Name, window.Root, window.Focus)

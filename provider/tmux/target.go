@@ -2,8 +2,12 @@ package tmux
 
 import (
 	"fmt"
+	"os"
 	"slices"
 	"strconv"
+
+	"github.com/boazj/muxocil/common"
+	"github.com/charmbracelet/log"
 )
 
 type IdentifierKind string
@@ -109,7 +113,8 @@ func (s *SessionIdentifier) String() string {
 	switch s.kind {
 	case idKind:
 		if _, err := strconv.Atoi(s.value); err != nil {
-			panic(fmt.Sprintf("session id should be a number, found [%s]", s.value))
+			log.Fatal("session id should be a number, found ", "value", s.value)
+			os.Exit(common.ExitProviderDataError)
 		}
 		return fmt.Sprintf("$%s", s.value)
 
@@ -119,7 +124,8 @@ func (s *SessionIdentifier) String() string {
 
 	case scriptKind:
 		if s.value == "" {
-			panic("session script value should be a valid string, found \"\"")
+			log.Fatal("session script value should be a valid string, found \"\"")
+			os.Exit(common.ExitProviderDataError)
 		}
 		return s.value
 
@@ -128,20 +134,24 @@ func (s *SessionIdentifier) String() string {
 	case infferedKind:
 		return ""
 	}
-	panic(fmt.Sprintf("session kind should be either of [id, name, script, current], found [%s]", s.kind))
+	log.Fatal("session kind should be either of [id, name, script, current], found ", "kind", s.kind)
+	os.Exit(common.ExitProviderDataError)
+	return ""
 }
 
 func (w *WindowIdentifier) String() string {
 	switch w.kind {
 	case idKind:
 		if _, err := strconv.Atoi(w.value); err != nil {
-			panic(fmt.Sprintf("window id should be a number, found [%s]", w.value))
+			log.Fatal("window id should be a number, found ", "value", w.value)
+			os.Exit(common.ExitProviderDataError)
 		}
 		return fmt.Sprintf("@%s", w.value)
 
 	case indexKind:
 		if _, err := strconv.Atoi(w.value); err != nil {
-			panic(fmt.Sprintf("window index should be a number, found [%s]", w.value))
+			log.Fatal("window index should be a number, found ", "value", w.value)
+			os.Exit(common.ExitProviderDataError)
 		}
 		return w.value
 
@@ -151,7 +161,8 @@ func (w *WindowIdentifier) String() string {
 
 	case scriptKind:
 		if w.value == "" {
-			panic("window script value should be a valid string, found \"\"")
+			log.Fatal("window script value should be a valid string, found \"\"")
+			os.Exit(common.ExitProviderDataError)
 		}
 		return w.value
 
@@ -161,30 +172,36 @@ func (w *WindowIdentifier) String() string {
 		return ""
 	case tokenKind:
 		if !isValidWindowToken(w.value) {
-			panic(fmt.Sprintf("window token should be a legal value, found [%s]", w.value))
+			log.Fatal("window token should be a legal value, found ", "value", w.value)
+			os.Exit(common.ExitProviderDataError)
 		}
 		return w.value
 	}
-	panic(fmt.Sprintf("window kind should be either of [id, index, name, script, current], found [%s]", w.kind))
+	log.Fatal("window kind should be either of [id, index, name, script, current], found ", "kind", w.kind)
+	os.Exit(common.ExitProviderDataError)
+	return ""
 }
 
 func (p *PaneIdentifier) String() string {
 	switch p.kind {
 	case idKind:
 		if _, err := strconv.Atoi(p.value); err != nil {
-			panic(fmt.Sprintf("pane id should be a number, found [%s]", p.value))
+			log.Fatal("pane id should be a number, found ", "value", p.value)
+			os.Exit(common.ExitProviderDataError)
 		}
 		return fmt.Sprintf("%%%s", p.value)
 
 	case indexKind:
 		if _, err := strconv.Atoi(p.value); err != nil {
-			panic(fmt.Sprintf("pane index should be a number, found [%s]", p.value))
+			log.Fatal("pane index should be a number, found ", "value", p.value)
+			os.Exit(common.ExitProviderDataError)
 		}
 		return p.value
 
 	case scriptKind:
 		if p.value == "" {
-			panic("pane script value should be a valid string, found \"\"")
+			log.Fatal("pane script value should be a valid string, found \"\"")
+			os.Exit(common.ExitProviderDataError)
 		}
 		return p.value
 
@@ -192,11 +209,14 @@ func (p *PaneIdentifier) String() string {
 		return ""
 	case tokenKind:
 		if !isValidPaneToken(p.value) {
-			panic(fmt.Sprintf("pane token should be a legal value, found [%s]", p.value))
+			log.Fatal("pane token should be a legal value, found ", "value", p.value)
+			os.Exit(common.ExitProviderDataError)
 		}
 		return p.value
 	}
-	panic(fmt.Sprintf("pane kind should be either of [id, index, script, current], found [%s]", p.kind))
+	log.Fatal("pane kind should be either of [id, index, script, current], found ", "kind", p.kind)
+	os.Exit(common.ExitProviderDataError)
+	return ""
 }
 
 type target struct {
@@ -232,8 +252,8 @@ func NewTargetPane(session protoIdentifier, window protoIdentifier, pane protoId
 	}
 }
 
-func TargetPaneFromWindow(window TargetWindow, pane protoIdentifier) TargetPane {
-	return TargetPane{
+func TargetPaneFromWindow(window *TargetWindow, pane protoIdentifier) *TargetPane {
+	return &TargetPane{
 		session: window.session,
 		window:  window.window,
 		pane:    PaneIdentifier(pane),
