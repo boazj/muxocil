@@ -8,7 +8,7 @@
   - [ ] Test
   - [ ] Publish
     - [ ] .goreleaser.yml
-  - [ ] Logging
+  - [w] Logging
   - [w] Errors
 - Interface
   - [w] Command layout
@@ -16,10 +16,10 @@
     - [x] Providers
     - [x] Layouts
   - [w] Force Provider
-  - [w] Configuration
+  - [x] Configuration
     - [x] Config options
     - [x] Config file
-    - [w] Config processing
+    - [x] Config processing
 - Layout Files
   - [x] Data structure
   - [w] Marshalling

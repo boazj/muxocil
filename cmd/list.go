@@ -16,7 +16,7 @@ var listCmd = &cobra.Command{
 	Short: "List all layouts available",
 	Run: func(cmd *cobra.Command, args []string) {
 		cfg := common.GetConfig()
-
+		// TODO: tea
 		w := tabwriter.NewWriter(os.Stdout, 1, 1, 1, ' ', 0)
 		defer w.Flush()
 		fmt.Fprintln(w, "Path\tName\t")

@@ -15,6 +15,7 @@ var providersCmd = &cobra.Command{
 	Use:   "providers",
 	Short: "List all available multiplexing providers in muxocil configuration",
 	Run: func(cmd *cobra.Command, args []string) {
+		// TODO: tea
 		w := tabwriter.NewWriter(os.Stdout, 1, 1, 1, ' ', 0)
 		fmt.Fprintln(w, "Name\tKind\tSupported OS\tConfig String\t")
 		fmt.Fprintln(w, "----\t------------\t------------------\t-------------\t")

@@ -75,7 +75,7 @@ func (c *Config) GetLayoutSearchLocations() []string {
 		dir, err := utils.IsDirectory(loc)
 		if err != nil || !dir {
 			if os.IsNotExist(err) || !dir {
-				// TODO: warn
+				// TODO: log warn
 				fmt.Printf("Configuration location %s does not exist or is not a directory\n", loc)
 				return false
 			} else {

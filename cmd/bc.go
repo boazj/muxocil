@@ -51,6 +51,7 @@ var bcCmd = &cobra.Command{
 			for _, loc := range cfg.GetLayoutSearchLocations() {
 				layouts := utils.GetFilesRecursively(loc, utils.IsYaml)
 				for _, l := range layouts {
+					// TODO: log
 					fmt.Printf("%s\n", utils.GetFileNamePart(l))
 				}
 			}
