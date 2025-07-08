@@ -2,16 +2,17 @@
 package common
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/boazj/muxocil/utils"
+	"github.com/charmbracelet/log"
 	"github.com/spf13/viper"
 	"github.com/tiendc/gofn"
 )
 
 const (
 	ConfSearchLocations               = "configuration.layout_search_locations"
+	ConfSearchExcludeLocations        = "configuration.layout_exclude_locations"
 	ProviderUseProvider               = "providers.use_provider"
 	ProviderUseProviderFail           = "providers.use_provider_fail_fast"
 	ProviderValidateProvider          = "providers.validate_provider_from_env"
@@ -26,6 +27,7 @@ const (
 
 type Config struct {
 	LayoutSearchLocations          []string
+	LayoutSearchExcludeLocations   []string
 	UseProvider                    string
 	UseProviderFailFast            bool
 	ValidateProviderFromEnv        bool
@@ -41,7 +43,8 @@ type Config struct {
 func GetConfig() *Config {
 	conf := Config{}
 
-	viper.SetDefault(ConfSearchLocations, []string{"$Home/.teamocil"})
+	viper.SetDefault(ConfSearchLocations, []string{"$HOME/.teamocil"})
+	viper.SetDefault(ConfSearchExcludeLocations, []string{})
 	viper.SetDefault(ProviderUseProvider, "")
 	viper.SetDefault(ProviderUseProviderFail, true)
 	viper.SetDefault(ProviderValidateProvider, true)
@@ -53,6 +56,7 @@ func GetConfig() *Config {
 	viper.SetDefault(LayoutWinIgnoreLayout, false)
 	viper.SetDefault(LayoutSessionRepalceIfExists, true)
 	conf.LayoutSearchLocations = viper.GetStringSlice(ConfSearchLocations)
+	conf.LayoutSearchExcludeLocations = viper.GetStringSlice(ConfSearchExcludeLocations)
 	conf.UseProvider = viper.GetString(ProviderUseProvider)
 	conf.UseProviderFailFast = viper.GetBool(ProviderUseProviderFail)
 	conf.ValidateProviderFromEnv = viper.GetBool(ProviderValidateProvider)
@@ -68,19 +72,28 @@ func GetConfig() *Config {
 }
 
 func (c *Config) GetLayoutSearchLocations() []string {
-	elocs := gofn.MapSlice(c.LayoutSearchLocations, os.ExpandEnv)
+	log.Debug("Reading search locations", "locations", c.LayoutSearchLocations)
+	elocs := gofn.ToSet(gofn.MapSlice(c.LayoutSearchLocations, os.ExpandEnv))
+	log.Debug("Expanding search locations", "expanded_locations", elocs)
 
-	elocs = gofn.ToSet(elocs)
+	log.Debug("Reading exclude locations", "locations", c.LayoutSearchExcludeLocations)
+	excludes := gofn.ToSet(gofn.MapSlice(c.LayoutSearchExcludeLocations, os.ExpandEnv))
+	log.Debug("Expanding exclude locations", "locations", excludes)
+
+	elocs = gofn.FilterNIN(elocs, excludes...)
+	log.Debug("Effective search locations", "locations", elocs)
+
 	elocs = gofn.Filter(elocs, func(loc string) bool {
 		dir, err := utils.IsDirectory(loc)
 		if err != nil || !dir {
 			if os.IsNotExist(err) || !dir {
-				// TODO: log warn
-				fmt.Printf("Configuration location %s does not exist or is not a directory\n", loc)
-				return false
+				log.Infof("Configuration location %s does not exist", loc)
+			} else if !dir {
+				log.Infof("Configuration location %s is not a directory", loc)
 			} else {
-				return false
+				log.Infof("Configuration location %s cannot be searched", loc)
 			}
+			return false
 		}
 		return true
 	})

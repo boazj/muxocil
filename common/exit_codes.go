@@ -3,7 +3,8 @@ package common
 const (
 	ExitOk                = 0
 	ExitGeneralError      = 1
-	ExitConfigBindError   = 2
-	ExitOpenEditorError   = 3
-	ExitProviderDataError = 4
+	ExitConfigFailure     = 2
+	ExitConfigBindError   = 3
+	ExitOpenEditorError   = 4
+	ExitProviderDataError = 5
 )

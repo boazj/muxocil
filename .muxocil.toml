@@ -1,6 +1,8 @@
 [configuration]
 # List of locations to include in layout search, the order matters
 layout_search_locations = [ "$HOME/.teamocil" ]
+# List of locations to exclude in layout search, enables to override hardcoded default of backward compatible commands
+layout_exclude_locations = []
 
 [providers]
 # Force usage of a specific provider. The value detailed here will be validated on execution:
