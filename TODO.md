@@ -11,8 +11,8 @@
   - [w] Logging
   - [w] Errors
 - Interface
-  - [w] Command layout
-  - [w] Command list
+  - [w] Command use
+  - [x] Command list
     - [x] Providers
     - [x] Layouts
   - [w] Force Provider
@@ -55,7 +55,7 @@
     - [w] Custom layouts mechanism
     - [w] Pane commands
     - [ ] Windows Script
-- [ ] Support Iterm2
+- [w] Support Iterm2
 - Verify BC with itermocil & teamocil
 
 # Milestone 2
