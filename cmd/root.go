@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 
 	"github.com/boazj/muxocil/common"
+	"github.com/charmbracelet/log"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -44,18 +45,40 @@ func init() {
 	if err != nil {
 		panic(fmt.Sprintf("failed to bind config: %v", err))
 	}
+
+	rootCmd.PersistentFlags().BoolP("verbose", "", false, "Show verbose logging")
+	err = viper.BindPFlag("log.verbose", rootCmd.PersistentFlags().Lookup("verbose"))
+	if err != nil {
+		panic(fmt.Sprintf("failed to bind config: %v", err))
+	}
+
+	rootCmd.PersistentFlags().BoolP("debug", "", false, "Show debug logging")
+	err = viper.BindPFlag("log.debug", rootCmd.PersistentFlags().Lookup("debug"))
+	if err != nil {
+		panic(fmt.Sprintf("failed to bind config: %v", err))
+	}
 }
 
 // initConfig reads in config file and ENV variables if set.
 func initConfig() {
+	log.SetLevel(log.WarnLevel)
+	if viper.GetBool("log.verbose") {
+		log.SetLevel(log.InfoLevel)
+	}
+	if viper.GetBool("log.debug") {
+		log.SetLevel(log.DebugLevel)
+	}
+
 	cfgFile, err := rootCmd.Flags().GetString("config")
 	if err != nil {
 		panic(fmt.Sprintf("failed to get config: %v", err))
 	}
 	if cfgFile != "" {
 		// Use config file from the flag.
+		log.Debug("Using override config file", "path", cfgFile)
 		viper.SetConfigFile(cfgFile)
 	} else {
+		log.Debug("Searching config file in default locations")
 		configPath, _ := os.UserConfigDir()
 
 		// Find home directory.
@@ -74,9 +97,9 @@ func initConfig() {
 
 	viper.AutomaticEnv() // read in environment variables that match
 
-	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err != nil {
-		// TODO: log
-		fmt.Fprintln(os.Stderr, "Using config file:", viper.ConfigFileUsed())
+		log.Error("Failed to read config file", "err", err)
+		os.Exit(common.ExitConfigFailure)
 	}
+	log.Debug("Loaded config file from", "path", viper.ConfigFileUsed())
 }

@@ -2,28 +2,29 @@ package cmd
 
 import (
 	"fmt"
-	"strings"
+	"path/filepath"
 
-	"github.com/boazj/muxocil/provider"
+	"github.com/boazj/muxocil/common"
+	"github.com/boazj/muxocil/utils"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/lipgloss/table"
 	"github.com/spf13/cobra"
-	"github.com/tiendc/gofn"
 )
 
-var providersCmd = &cobra.Command{
-	Use:   "providers",
-	Short: "List all available multiplexing providers in muxocil configuration",
+var listCmd = &cobra.Command{
+	Use:   "layouts",
+	Short: "List all layouts available",
 	Run: func(cmd *cobra.Command, args []string) {
-		rows := make([][]string, 0)
+		cfg := common.GetConfig()
 
-		for _, p := range provider.Providers {
-			rows = append(rows, []string{
-				p.Display,
-				string(p.Kind),
-				strings.Join(gofn.ToStringSlice[string](p.SupportedOs), ", "),
-				string(p.ID),
+		rows := make([][]string, 0)
+		for _, loc := range cfg.GetLayoutSearchLocations() {
+			layouts := utils.GetFilesRecursively(loc, func(path string) bool {
+				return utils.IsYaml(path)
 			})
+			for _, l := range layouts {
+				rows = append(rows, []string{l, filepath.Base(l)})
+			}
 		}
 
 		headerStyle := lipgloss.NewStyle().Bold(true).Align(lipgloss.Center)
@@ -38,7 +39,7 @@ var providersCmd = &cobra.Command{
 				}
 				return rowStyle
 			}).
-			Headers("Name", "Kind", "Supported OS", "Config String").
+			Headers("Path", "Name").
 			Rows(rows...)
 
 		fmt.Println(t)
@@ -46,5 +47,5 @@ var providersCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(providersCmd)
+	rootCmd.AddCommand(listCmd)
 }

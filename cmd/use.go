@@ -6,16 +6,16 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var layoutCmd = &cobra.Command{
-	Use:   "layout",
+var useCmd = &cobra.Command{
+	Use:   "use",
 	Short: "Use a specific layout file, instead of `~/.teamocil/<layout>.yml`",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("layout called")
+		fmt.Println("use called")
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(layoutCmd)
+	rootCmd.AddCommand(useCmd)
 
 	// Here you will define your flags and configuration settings.
 
