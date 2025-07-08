@@ -3,7 +3,10 @@ package iterm2
 
 import "github.com/boazj/muxocil/common"
 
-type Iterm2 struct{}
+type Iterm2 struct {
+	newIterm bool
+	here     bool
+}
 
 func NewIterm2(opts *common.CommandOpts) (*Iterm2, error) {
 	return nil, nil
