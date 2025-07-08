@@ -9,13 +9,15 @@
   - [ ] Publish
     - [ ] .goreleaser.yml
   - [w] Logging
-  - [w] Errors
+  - [x] Errors
 - Interface
   - [w] Command use
   - [x] Command list
     - [x] Providers
     - [x] Layouts
   - [w] Force Provider
+    - [x] Via config
+    - [ ] Via command
   - [x] Configuration
     - [x] Config options
     - [x] Config file
@@ -56,6 +58,16 @@
     - [w] Pane commands
     - [ ] Windows Script
 - [w] Support Iterm2
+  - [x] Iterm2 driver
+    - [x] Select layout
+    - [x] Select pane
+    - [x] Send keys
+    - [x] Split window
+  - [w] Iterm2 provider
+    - [x] Create Window
+    - [a] Window Commands
+    - [x] Create Pane
+    - [x] Pane Layouts
 - Verify BC with itermocil & teamocil
 
 # Milestone 2
