@@ -1,6 +1,10 @@
 package tmux
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/boazj/muxocil/common"
+)
 
 const CMD = "tmux"
 
@@ -108,7 +112,7 @@ func (t *Tmux) renameSession(session *TargetSession, newName string) string {
 	return fmt.Sprintf("%s rename-session %s '%s'", CMD, target, newName)
 }
 
-func (t *Tmux) selectLayout(window *TargetWindow, layout string) string {
+func (t *Tmux) selectLayout(window *TargetWindow, layout common.MuxLayout) string {
 	if layout == "" {
 		return ""
 	}

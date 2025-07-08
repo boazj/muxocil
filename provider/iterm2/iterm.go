@@ -6,6 +6,12 @@ import "github.com/boazj/muxocil/common"
 type Iterm2 struct {
 	newIterm bool
 	here     bool
+
+	script AppleScript
+}
+
+func (t *Iterm2) getScript() string {
+	return t.script.Raw()
 }
 
 func NewIterm2(opts *common.CommandOpts) (*Iterm2, error) {

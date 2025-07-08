@@ -11,23 +11,24 @@ type WindowLayoutStrategy interface {
 }
 
 //lint:ignore U1000 in dev
-var strategies = map[string]WindowLayoutStrategy{
-	"even-horizontal":          &nativeLayout{layout: "even-horizontal"},
-	"even-vertical":            &nativeLayout{layout: "even-vertical"},
-	"main-horizontal":          &nativeLayout{layout: "main-horizontal"},
-	"main-horizontal-mirrored": &nativeLayout{layout: "main-horizontal-mirrored"},
-	"main-vertical":            &nativeLayout{layout: "main-vertical"},
-	"main-vertical-mirrored":   &nativeLayout{layout: "main-vertical-mirrored"},
-	"main-vertical-flipped":    &nativeLayout{layout: "main-vertical-mirrored"},
-	"tiled":                    &nativeLayout{layout: "tiled"},
-	"3_columns":                &ThreeColumns{},
-	"double-main-horizontal":   &DoubleMainHorizontal{},
-	"double-main-vertical":     &DoubleMainVertical{},
+var strategies = map[common.MuxLayout]WindowLayoutStrategy{
+	common.EvenHorizontal:         &nativeLayout{layout: common.EvenHorizontal},
+	common.EvenVertical:           &nativeLayout{layout: common.EvenVertical},
+	common.MainHorizontal:         &nativeLayout{layout: common.MainHorizontal},
+	common.MainHorizontalMirrored: &nativeLayout{layout: common.MainHorizontalMirrored},
+	common.MainHorizontalFlipped:  &nativeLayout{layout: common.MainHorizontalMirrored},
+	common.MainVertical:           &nativeLayout{layout: common.MainVertical},
+	common.MainVerticalMirrored:   &nativeLayout{layout: common.MainVerticalMirrored},
+	common.MainVerticalFlipped:    &nativeLayout{layout: common.MainVerticalMirrored},
+	common.Tiled:                  &nativeLayout{layout: common.Tiled},
+	common.ThreeColumns:           &ThreeColumns{},
+	common.DoubleMainHorizontal:   &DoubleMainHorizontal{},
+	common.DoubleMainVertical:     &DoubleMainVertical{},
 }
 
 // https://github.com/TomAnthony/itermocil/blob/master/LAYOUTS.md
 type nativeLayout struct {
-	layout string
+	layout common.MuxLayout
 }
 
 //lint:ignore U1000 in dev
