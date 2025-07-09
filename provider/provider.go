@@ -187,7 +187,7 @@ func Proccessor(opts *common.CommandOpts) error {
 		return fmt.Errorf("encountered issue validating yaml layout: %v", err)
 	}
 	if session.Name != "" {
-		p.CreateLayout(session)
+		p.CreateSession(session)
 	}
 	for i, win := range session.Windows {
 		p.CreateWindow(win, i)
@@ -199,7 +199,7 @@ func Proccessor(opts *common.CommandOpts) error {
 }
 
 type Provider interface {
-	CreateLayout(session *common.Session) error
+	CreateSession(session *common.Session) error
 	CreateWindow(window *common.Window, index int) error
 	CreatePane(window *common.Window, pane *common.Pane, index int) error
 

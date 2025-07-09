@@ -5,7 +5,6 @@ import (
 
 	"github.com/boazj/muxocil/common"
 	"github.com/boazj/muxocil/utils"
-	"github.com/tiendc/gofn"
 )
 
 type oldItermWindow struct {
@@ -145,17 +144,12 @@ func (w *oldItermWindow) mainHorizontalFlipped() {
 // needed. If there are odd number of panes then the bottom pane
 // spans two columns. Panes are numbered top to bottom, left to right.
 func (w *oldItermWindow) tiled() {
-	lColumn := (w.panes / 2) + w.panes%2 - 1 // half of the panes, the bottom row if needed, one less as we have a default pane
-	rColumn := w.panes / 2
-
-	w.script.Append(utils.Times(lColumn, w.splitHorizontally())...)
-	if lColumn > 0 {
-		// If we split vertically at all then move 'down' a pane to focus on the first pane
-		w.script.Append(selectColumnTopPane())
-	}
-	w.script.Append(utils.Times(rColumn, w.splitVertically(), selectNextPane())...)
-	if w.panes%2 != 0 {
-		w.script.Append(selectNextPane()) // if there is a bottom row, focus on that
+	for i := 2; i <= w.panes; i++ {
+		if i%2 == 1 {
+			w.script.Append(selectPrevPane(), w.splitHorizontally())
+		} else {
+			w.script.Append(w.splitVertically())
+		}
 	}
 }
 
@@ -163,21 +157,13 @@ func (w *oldItermWindow) tiled() {
 // needed. If there are odd number of panes then the bottom pane
 // spans two columns. Panes are numbered top to bottom, left to right.
 func (w *oldItermWindow) threeColumns() {
-	// third of the panes, the bottom row if needed (modulu can be 2 or 1 both contribute 1), one less as we have a default pane
-	lColumn := (w.panes / 3) + gofn.Min(w.panes%3, 1) - 1
-	// third of the panes, the bottom row if needed (modulu can be 2 or 1 which contribut 1 and 0 respectivly
-	mColumn := (w.panes / 3) + gofn.Max(w.panes%3-1, 0)
-	rColumn := w.panes / 3
-
-	w.script.Append(utils.Times(lColumn, w.splitHorizontally())...)
-	if lColumn > 0 {
-		w.script.Append(selectColumnTopPane())
+	for i := 2; i <= w.panes; i++ {
+		if i%3 == 1 {
+			w.script.Append(selectPrevPane(), selectPrevPane(), w.splitHorizontally())
+		} else {
+			w.script.Append(w.splitVertically())
+		}
 	}
-	w.script.Append(utils.Times(mColumn, w.splitVertically(), selectNextPane())...)
-	if mColumn > 0 {
-		w.script.Append(selectColumnTopPane())
-	}
-	w.script.Append(utils.Times(rColumn, w.splitVertically(), selectNextPane(), selectNextPane())...)
 }
 
 // 'double-main-horizontal' layouts have two left panes that are full height,

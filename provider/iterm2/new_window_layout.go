@@ -132,14 +132,26 @@ func (w *newItermWindow) mainHorizontalFlipped() {
 // needed. If there are odd number of panes then the bottom pane
 // spans two columns. Panes are numbered top to bottom, left to right.
 func (w *newItermWindow) tiled() {
-	// TODO:
+	for i := 2; i <= w.panes; i++ {
+		if i%2 == 1 {
+			w.script.Append(w.createPane(i-2, i, "horizontal"))
+		} else {
+			w.script.Append(w.createPane(i-1, i, "vertical"))
+		}
+	}
 }
 
 // '3_columns' layouts create 3 columns and then however many rows as
 // needed. If there are odd number of panes then the bottom pane
 // spans two columns. Panes are numbered top to bottom, left to right.
 func (w *newItermWindow) threeColumns() {
-	// TODO:
+	for i := 2; i <= w.panes; i++ {
+		if i%3 == 1 {
+			w.script.Append(w.createPane(i-3, i, "horizontal"))
+		} else {
+			w.script.Append(w.createPane(i-1, i, "vertical"))
+		}
+	}
 }
 
 // 'double-main-horizontal' layouts have two bottom panes that split the width

@@ -9,7 +9,7 @@ func NewWezterm(opts *common.CommandOpts) (*Wezterm, error) {
 	return nil, nil
 }
 
-func (w *Wezterm) CreateLayout(session *common.Session) error {
+func (w *Wezterm) CreateSession(session *common.Session) error {
 	// TODO: impl
 	return nil
 }

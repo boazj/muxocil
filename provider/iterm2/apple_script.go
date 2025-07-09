@@ -18,19 +18,19 @@ const (
 type AsCmd string
 
 type AppleScript struct {
-	cmds []AsCmd
+	cmds       []AsCmd
+	suffixCmds []AsCmd
 }
 
 func newAppleScript() *AppleScript {
 	return &AppleScript{
-		cmds: make([]AsCmd, 0),
+		cmds:       make([]AsCmd, 0),
+		suffixCmds: make([]AsCmd, 0),
 	}
 }
 
 func SingletonScript(cmd AsCmd) *AppleScript {
-	return &AppleScript{
-		cmds: []AsCmd{cmd},
-	}
+	return newAppleScript().Append(cmd)
 }
 
 func (s *AppleScript) Append(cmds ...AsCmd) *AppleScript {
@@ -38,13 +38,21 @@ func (s *AppleScript) Append(cmds ...AsCmd) *AppleScript {
 	return s
 }
 
+func (s *AppleScript) Suffix(cmds ...AsCmd) *AppleScript {
+	s.suffixCmds = append(s.suffixCmds, cmds...)
+	return s
+}
+
 func (s *AppleScript) Merge(script *AppleScript) *AppleScript {
 	s.Append(script.cmds...)
+	s.Suffix(script.suffixCmds...)
 	return s
 }
 
 func (s *AppleScript) Raw() string {
-	return strings.Join(utils.ToStringSlice(s.cmds), "\n")
+	main := strings.Join(utils.ToStringSlice(s.cmds), "\n")
+	suffix := strings.Join(utils.ToStringSlice(s.suffixCmds), "\n")
+	return main + "\n" + suffix
 }
 
 func (s *AppleScript) Execute() {

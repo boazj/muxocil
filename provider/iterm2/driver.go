@@ -1,8 +1,11 @@
 package iterm2
 
 import (
+	"errors"
 	"fmt"
 	"os"
+	"os/exec"
+	"strconv"
 	"strings"
 
 	"github.com/boazj/muxocil/common"
@@ -26,8 +29,49 @@ const asFocusOnPaneNewIterm = ` tell pane_%d
  end tell
 `
 
-func (t *Iterm2) getNumPanesInCurrentWindow() {
-	// TODO:
+// Get version of iTerm. 'iTerm2' (iTerm 2.9+) has better API
+func (t *Iterm2) getVersion() (int, int, int, error) {
+	// TODO: deal with beta and nightly
+	cmd := exec.Command(
+		"osascript",
+		"-e",
+		fmt.Sprintf("get version of application \"%s\"", AppName),
+	)
+	out, err := cmd.Output()
+	if err != nil {
+		return -1, -1, -1, fmt.Errorf("could not fetch iTerm2 version: %v", err)
+	}
+
+	version := strings.Split(strings.TrimSpace(string(out)), ".")
+	if len(version) != 3 {
+		return -1, -1, -1, fmt.Errorf("could not parse iTerm2 version: %s", version)
+	}
+	major, err1 := strconv.Atoi(version[0])
+	minor, err2 := strconv.Atoi(version[1])
+	micro, err3 := strconv.Atoi(version[2])
+	if err = errors.Join(err1, err2, err3); err != nil {
+		return -1, -1, -1, fmt.Errorf("could not parse iTerm2 version: %v", err)
+	}
+	return major, minor, micro, nil
+}
+
+// Get the number of panes already existing in the current window. This is used only for old iTerm.
+func (t *Iterm2) getNumPanesInCurrentWindow() (int, error) {
+	cmd := exec.Command(
+		"osascript",
+		"-e",
+		fmt.Sprintf("tell application \"%s\" to count sessions of current terminal", AppName),
+	)
+	out, err := cmd.Output()
+	if err != nil {
+		return -1, fmt.Errorf("could not fetch number of panes in current window: %v", err)
+	}
+
+	value, err := strconv.Atoi(strings.TrimSpace(string(out)))
+	if err != nil {
+		return -1, fmt.Errorf("could not parse number of panes in current window: %v", err)
+	}
+	return value, nil
 }
 
 // Create a set of Applescript instructions to generate the desired
