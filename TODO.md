@@ -11,6 +11,7 @@
   - [w] Logging
   - [x] Errors
 - Interface
+  - [ ] All commands should show help if not usable
   - [w] Command use
   - [x] Command list
     - [x] Providers

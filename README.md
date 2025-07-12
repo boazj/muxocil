@@ -27,6 +27,71 @@
 
 # Usage
 
+### List available layouts
+
+```
+    > muxocil layouts
+
+    List all layouts available
+
+    Usage:
+      muxocil layouts [flags]
+
+    Flags:
+      -h, --help   help for layouts
+
+```
+
+### List available providers
+
+```
+    > muxocil providers
+
+    List all available multiplexing providers in muxocil configuration
+
+    Usage:
+      muxocil providers [flags]
+
+    Flags:
+      -h, --help   help for providers
+
+```
+
+### Use a specific layout
+
+```
+    muxocil use
+
+    Use a layout, specified by name or path
+
+    Usage:
+      muxocil use [flags]
+
+    Flags:
+      -h, --help   help for use
+
+```
+
+### teamocil & itermocil backward compatible command
+
+```
+    > muxocil bc
+
+    Command compatible with iTermocil and teamocil, can be used in an alias to replace both tools
+
+    Usage:
+      muxocil bc [flags]
+
+    Flags:
+          --edit            Edit the layout file in either $EDITOR or your preferred GUI editor
+      -h, --help            help for bc
+          --here            Uses the current window as the layout’s first window
+          --layout string   Takes a custom file path to a YAML layout file instead of [layout-name]
+          --list            Lists all available layouts in ~/.itermocil, ~/.teamocil & locations per configuration file
+          --show            Shows the layout content instead of executing it
+
+```
+
 ## Options
 
 ## Configuration

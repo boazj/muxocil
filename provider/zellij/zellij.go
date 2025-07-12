@@ -9,6 +9,10 @@ func NewZellij(opts *common.CommandOpts) (*Zellij, error) {
 	return nil, nil
 }
 
+func (z *Zellij) GetID() common.MuxID {
+	return common.Zellij
+}
+
 func (z *Zellij) CreateSession(session *common.Session) error {
 	// TODO: impl
 	return nil

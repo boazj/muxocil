@@ -9,6 +9,11 @@ func GetFileNamePart(path string) string {
 	return strings.TrimSuffix(filepath.Base(path), filepath.Ext(path))
 }
 
+func FilenamePart(path string) string {
+	base := filepath.Base(path)
+	return strings.TrimSuffix(base, filepath.Ext(base))
+}
+
 func IsYaml(path string) bool {
 	return HasSuffix(path, ".yaml", ".yml")
 }

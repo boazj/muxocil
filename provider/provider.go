@@ -16,114 +16,97 @@ import (
 	"github.com/tiendc/gofn"
 )
 
-type (
-	MuxID     string
-	Processor func(opts *common.CommandOpts) error
-)
-
-const (
-	Iterm2  MuxID = "iterm2"
-	Kitty   MuxID = "kitty"
-	Tmux    MuxID = "tmux"
-	Wezterm MuxID = "wezterm"
-	Zellij  MuxID = "zellij"
-)
-
-type ProviderType string
-
-const (
-	Multiplexer = "Multiplexer"
-	Emulator    = "Emulator"
-)
-
-type OS string
-
-const (
-	Windows = "Windows"
-	MacOS   = "macOS"
-	Linux   = "Linux"
-)
-
-type MuxMD struct {
-	ID          MuxID
+type Mux struct {
+	ID          common.MuxID
 	Display     string
-	Kind        ProviderType
-	SupportedOs []OS
+	Kind        common.ProviderType
+	SupportedOs []common.OS
 }
 
-var Providers = []MuxMD{
-	{Tmux, "tmux", Multiplexer, []OS{Windows, MacOS, Linux}},
-	{Zellij, "Zellij", Multiplexer, []OS{Windows, MacOS, Linux}},
-	{Iterm2, "iTerm2", Emulator, []OS{MacOS}},
-	{Kitty, "Kitty", Emulator, []OS{MacOS, Linux}},
-	{Wezterm, "WezTerm", Emulator, []OS{Windows, MacOS, Linux}},
+var (
+	Providers map[common.MuxID]Mux
+	hints     struct {
+		muxEnv      map[string]common.MuxID
+		terminalEnv map[string]common.MuxID
+		programEnv  map[string]common.MuxID
+	}
+)
+
+func init() {
+	Providers = map[common.MuxID]Mux{
+		common.Tmux:    {common.Tmux, "tmux", common.Multiplexer, []common.OS{common.Windows, common.MacOS, common.Linux}},
+		common.Zellij:  {common.Zellij, "Zellij", common.Multiplexer, []common.OS{common.Windows, common.MacOS, common.Linux}},
+		common.Iterm2:  {common.Iterm2, "iTerm2", common.Emulator, []common.OS{common.MacOS}},
+		common.Kitty:   {common.Kitty, "Kitty", common.Emulator, []common.OS{common.MacOS, common.Linux}},
+		common.Wezterm: {common.Wezterm, "WezTerm", common.Emulator, []common.OS{common.Windows, common.MacOS, common.Linux}},
+	}
+
+	hints.muxEnv = map[string]common.MuxID{
+		"TMUX":                common.Tmux,
+		"TMUX_PANE":           common.Tmux,
+		"ZELLIJ":              common.Zellij,
+		"ZELLIJ_SESSION_NAME": common.Zellij,
+		"ITERM_SESSION_ID":    common.Iterm2,
+		"KITTY_WINDOW_ID":     common.Kitty,
+		"WEZTERM_EXECUTABLE":  common.Wezterm,
+	}
+
+	hints.terminalEnv = map[string]common.MuxID{
+		"xterm-kitty": common.Kitty,
+	}
+
+	hints.programEnv = map[string]common.MuxID{
+		"iTerm.app": common.Iterm2,
+		"WezTerm":   common.Wezterm,
+	}
 }
 
-var muxEnvHints = map[string]MuxID{
-	"TMUX":                Tmux,
-	"TMUX_PANE":           Tmux,
-	"ZELLIJ":              Zellij,
-	"ZELLIJ_SESSION_NAME": Zellij,
-	"ITERM_SESSION_ID":    Iterm2,
-	"KITTY_WINDOW_ID":     Kitty,
-	"WEZTERM_EXECUTABLE":  Wezterm,
-}
-
-var terminalEnvTermHints = map[string]MuxID{
-	"xterm-kitty": Kitty,
-}
-
-var terminalEnvProgramHints = map[string]MuxID{
-	"iTerm.app": Iterm2,
-	"WezTerm":   Wezterm,
-}
-
-func NewProvider(id MuxID, opts *common.CommandOpts) (Provider, error) {
-	switch id {
-	case Iterm2:
+func NewProvider(mux Mux, opts *common.CommandOpts) (Provider, error) {
+	switch mux.ID {
+	case common.Iterm2:
 		p, err := iterm2.NewIterm2(opts)
 		return p, utils.Wrap(err, "failed to instantiate provider")
-	case Kitty:
+	case common.Kitty:
 		p, err := kitty.NewKitty(opts)
 		return p, utils.Wrap(err, "failed to instantiate provider")
-	case Tmux:
+	case common.Tmux:
 		p, err := tmux.NewTmux(opts)
 		return p, utils.Wrap(err, "failed to instantiate provider")
-	case Wezterm:
+	case common.Wezterm:
 		p, err := wezterm.NewWezterm(opts)
 		return p, utils.Wrap(err, "failed to instantiate provider")
-	case Zellij:
+	case common.Zellij:
 		p, err := zellij.NewZellij(opts)
 		return p, utils.Wrap(err, "failed to instantiate provider")
 	}
-	return nil, fmt.Errorf("unsupported multiplexer identifier: %s", id)
+	return nil, fmt.Errorf("unsupported multiplexer identifier: %s", mux.ID)
 }
 
 func FromEnv(opts *common.CommandOpts) (Provider, error) {
-	exclude := make([]MuxID, 0)
+	exclude := make([]common.MuxID, 0)
 	if runtime.GOOS != "darwin" {
-		exclude = append(exclude, Iterm2)
+		exclude = append(exclude, common.Iterm2)
 	}
 	if runtime.GOOS == "windows" {
-		exclude = append(exclude, Kitty)
+		exclude = append(exclude, common.Kitty)
 	}
 	term := utils.GetEnvOr("OVERRIDE_TERM", "TERM")
 	program := utils.GetEnvOr("OVERRIDE_TERM_PROGRAM", "TERM_PROGRAM")
 
-	emu, ok := terminalEnvTermHints[term]
+	emu, ok := hints.terminalEnv[term]
 	if ok && !slices.Contains(exclude, emu) {
-		p, err := NewProvider(emu, opts)
+		p, err := NewProvider(Providers[emu], opts)
 		return p, err
 	}
-	emu, ok = terminalEnvProgramHints[program]
+	emu, ok = hints.programEnv[program]
 	if ok && !slices.Contains(exclude, emu) {
-		p, err := NewProvider(emu, opts)
+		p, err := NewProvider(Providers[emu], opts)
 		return p, err
 	}
 
-	for k, v := range muxEnvHints {
+	for k, v := range hints.muxEnv {
 		if !slices.Contains(exclude, emu) && utils.IsEnvExists(k) {
-			p, err := NewProvider(v, opts)
+			p, err := NewProvider(Providers[v], opts)
 			return p, err
 		}
 	}
@@ -174,15 +157,10 @@ func NormalizeValidate(session *common.Session) error {
 	return nil
 }
 
-func Proccessor(opts *common.CommandOpts) error {
-	p, err := FromEnv(opts)
-	if err != nil {
-		return fmt.Errorf("cannot load provider for current multiplexer: %v", err)
-	}
-
+func Process(p Provider, layoutPath string) error {
 	// TODO: load yml
 	var session *common.Session = nil
-	err = NormalizeValidate(session)
+	err := NormalizeValidate(session)
 	if err != nil {
 		return fmt.Errorf("encountered issue validating yaml layout: %v", err)
 	}
@@ -199,6 +177,7 @@ func Proccessor(opts *common.CommandOpts) error {
 }
 
 type Provider interface {
+	GetID() common.MuxID
 	CreateSession(session *common.Session) error
 	CreateWindow(window *common.Window, index int) error
 	CreatePane(window *common.Window, pane *common.Pane, index int) error

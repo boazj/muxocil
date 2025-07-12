@@ -48,6 +48,10 @@ func NewTmux(opts *common.CommandOpts) (*Tmux, error) {
 	return &t, nil
 }
 
+func (t *Tmux) GetID() common.MuxID {
+	return common.Tmux
+}
+
 func (t *Tmux) CreateSession(session *common.Session) error {
 	if session.Name == "" {
 		return nil

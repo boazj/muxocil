@@ -28,8 +28,8 @@ inffer_provider_from_env = true
 # muxocil configured for use_provider = "tmux"
 # Execute muxocil will generate a tmux script, without a proper tmux initial state
 #
-# When `launch_multiplexer_app` is set to true, muxocil will execute the multiplexer application
-# Whe `launch_multiplexer_app` is set to false, muxocil will be defensive and will fail-fast
+# When `launch_multiplexer_app` is set to true, muxocil will execute the multiplexer application if not available
+# When `launch_multiplexer_app` is set to false, muxocil will be defensive and will fail-fast
 launch_multiplexer_app = false
 
 [layout]

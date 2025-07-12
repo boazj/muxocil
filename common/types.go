@@ -10,3 +10,28 @@ type CommandOpts struct {
 
 // TODO: force reuse existing layout (session)
 // TODO: understand if there is a real use-case for precommand (running command before any other thing, inside of terminal) (itermocil BC)
+
+type (
+	MuxID        string
+	ProviderType string
+	OS           string
+)
+
+const (
+	Iterm2  MuxID = "iterm2"
+	Kitty   MuxID = "kitty"
+	Tmux    MuxID = "tmux"
+	Wezterm MuxID = "wezterm"
+	Zellij  MuxID = "zellij"
+)
+
+const (
+	Multiplexer = "Multiplexer"
+	Emulator    = "Emulator"
+)
+
+const (
+	Windows = "Windows"
+	MacOS   = "macOS"
+	Linux   = "Linux"
+)

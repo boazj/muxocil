@@ -9,6 +9,10 @@ func NewKitty(opts *common.CommandOpts) (*Kitty, error) {
 	return nil, nil
 }
 
+func (k *Kitty) GetID() common.MuxID {
+	return common.Kitty
+}
+
 func (k *Kitty) CreateSession(session *common.Session) error {
 	// TODO: impl
 	return nil

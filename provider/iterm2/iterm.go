@@ -55,6 +55,10 @@ const (
   `
 )
 
+func (t *Iterm2) GetID() common.MuxID {
+	return common.Iterm2
+}
+
 func (t *Iterm2) CreateSession(session *common.Session) error {
 	t.script.Append(AsCmd(fmt.Sprintf(TellActivate, AppName)))
 
