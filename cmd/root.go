@@ -33,6 +33,7 @@ var rootCmd = &cobra.Command{
 func Execute() {
 	err := rootCmd.Execute()
 	if err != nil {
+		log.Fatal("General error occured", "error", err)
 		os.Exit(common.ExitGeneralError)
 	}
 }
@@ -98,7 +99,7 @@ func initConfig() {
 	viper.AutomaticEnv() // read in environment variables that match
 
 	if err := viper.ReadInConfig(); err != nil {
-		log.Error("Failed to read config file", "err", err)
+		log.Fatal("Failed to read config file", "err", err)
 		os.Exit(common.ExitConfigFailure)
 	}
 	log.Debug("Loaded config file from", "path", viper.ConfigFileUsed())

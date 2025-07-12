@@ -30,7 +30,7 @@ var bcCmd = &cobra.Command{
 				cmd.Stdout = os.Stdout
 				cmd.Stderr = os.Stderr
 				if err := cmd.Run(); err != nil {
-					log.Error("Encountered an error while opening $EDITOR", err)
+					log.Fatal("Encountered an error while opening $EDITOR", err)
 					os.Exit(common.ExitOpenEditorError)
 				}
 				os.Exit(common.ExitOk)
@@ -75,7 +75,7 @@ func init() {
 	err5 := viper.BindPFlag("bc.list", bcCmd.Flags().Lookup("list"))
 
 	if err := errors.Join(err1, err2, err3, err4, err5); err != nil {
-		log.Error("Failed to bind config", "err", err)
+		log.Fatal("Failed to bind config", "err", err)
 		os.Exit(common.ExitConfigBindError)
 	}
 }
