@@ -11,7 +11,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var listCmd = &cobra.Command{
+var layoutsCmd = &cobra.Command{
 	Use:   "layouts",
 	Short: "List all layouts available",
 	Run: func(cmd *cobra.Command, args []string) {
@@ -47,5 +47,5 @@ var listCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(listCmd)
+	rootCmd.AddCommand(layoutsCmd)
 }
