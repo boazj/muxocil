@@ -2,6 +2,7 @@
 package common
 
 import (
+	"encoding/json"
 	"os"
 
 	"github.com/boazj/muxocil/utils"
@@ -13,6 +14,7 @@ import (
 const (
 	ConfSearchLocations               = "configuration.layout_search_locations"
 	ConfSearchExcludeLocations        = "configuration.layout_exclude_locations"
+	ConfOverrideEditor                = "configuration.override_editor"
 	ProviderUseProvider               = "providers.use_provider"
 	ProviderUseProviderFail           = "providers.use_provider_fail_fast"
 	ProviderValidateProvider          = "providers.validate_provider_from_env"
@@ -25,9 +27,36 @@ const (
 	LayoutSessionRepalceIfExists      = "layout.session.replace_if_session_exists"
 )
 
+const (
+	EnvEditor              = "env.editor"
+	EnvTerm                = "env.term"
+	EnvOverrideTerm        = "env.override_term"
+	EnvTermProgram         = "env.term_program"
+	EnvOverrideTermProgram = "env.override_term_program"
+)
+
+const (
+	HintTmux              = "hints.tmux"
+	HintTmuxPane          = "hints.tmux_pane"
+	HintZellij            = "hints.zellij"
+	HintZellijSessionName = "hints.zellij_session_name"
+	HintItermSessionID    = "hints.iterm_session_id"
+	HintKittyWindowID     = "hints.kitty_window_id"
+	HintWeztermExecutable = "hints.wezterm_executable"
+)
+
 type Config struct {
+	Hints EnvHints
+
+	Term                string
+	OverrideTerm        string
+	TermProgram         string
+	OverrideTermProgram string
+
 	LayoutSearchLocations          []string
 	LayoutSearchExcludeLocations   []string
+	Editor                         string
+	OverrideEditor                 string
 	UseProvider                    string
 	UseProviderFailFast            bool
 	ValidateProviderFromEnv        bool
@@ -40,11 +69,23 @@ type Config struct {
 	ReplaceIfSessionExists         bool
 }
 
+type EnvHints struct {
+	Tmux              string
+	TmuxPane          string
+	Zellij            string
+	ZellijSessionName string
+	ItermSessionID    string
+	KittyWindowID     string
+	WeztermExecutable string
+}
+
 func GetConfig() *Config {
 	conf := Config{}
+	hints := EnvHints{}
 
 	viper.SetDefault(ConfSearchLocations, []string{"$HOME/.teamocil"})
 	viper.SetDefault(ConfSearchExcludeLocations, []string{})
+	viper.SetDefault(ConfOverrideEditor, "")
 	viper.SetDefault(ProviderUseProvider, "")
 	viper.SetDefault(ProviderUseProviderFail, true)
 	viper.SetDefault(ProviderValidateProvider, true)
@@ -55,8 +96,26 @@ func GetConfig() *Config {
 	viper.SetDefault(LayoutPaneShowTitleWhitespaceChar, "_")
 	viper.SetDefault(LayoutWinIgnoreLayout, false)
 	viper.SetDefault(LayoutSessionRepalceIfExists, true)
+
+	viper.BindEnv(EnvEditor, "EDITOR")
+	viper.BindEnv(EnvTerm, "TERM")
+	viper.BindEnv(EnvOverrideTerm, "OVERRIDE_TERM")
+	viper.BindEnv(EnvTermProgram, "TERM_PROGRAM")
+	viper.BindEnv(EnvOverrideTermProgram, "OVERRIDE_TERM_PROGRAM")
+
+	viper.BindEnv(HintTmux, "TMUX")
+	viper.BindEnv(HintTmuxPane, "TMUX_PANE")
+	viper.BindEnv(HintZellij, "ZELLIJ")
+	viper.BindEnv(HintZellijSessionName, "ZELLIJ_SESSION_NAME")
+	viper.BindEnv(HintItermSessionID, "ITERM_SESSION_ID")
+	viper.BindEnv(HintKittyWindowID, "KITTY_WINDOW_ID")
+	viper.BindEnv(HintWeztermExecutable, "WEZTERM_EXECUTABLE")
+
 	conf.LayoutSearchLocations = viper.GetStringSlice(ConfSearchLocations)
 	conf.LayoutSearchExcludeLocations = viper.GetStringSlice(ConfSearchExcludeLocations)
+	conf.Editor = viper.GetString(EnvEditor)
+	conf.OverrideEditor = viper.GetString(ConfOverrideEditor)
+
 	conf.UseProvider = viper.GetString(ProviderUseProvider)
 	conf.UseProviderFailFast = viper.GetBool(ProviderUseProviderFail)
 	conf.ValidateProviderFromEnv = viper.GetBool(ProviderValidateProvider)
@@ -67,6 +126,23 @@ func GetConfig() *Config {
 	conf.PaneTitleReplaceWhitespaceChar = viper.GetString(LayoutPaneShowTitleWhitespaceChar)
 	conf.IgnoreWindowLayout = viper.GetBool(LayoutWinIgnoreLayout)
 	conf.ReplaceIfSessionExists = viper.GetBool(LayoutSessionRepalceIfExists)
+
+	conf.Term = viper.GetString(EnvTerm)
+	conf.OverrideTerm = viper.GetString(EnvOverrideTerm)
+	conf.TermProgram = viper.GetString(EnvTermProgram)
+	conf.OverrideTermProgram = viper.GetString(EnvOverrideTermProgram)
+
+	hints.Tmux = viper.GetString(HintTmux)
+	hints.TmuxPane = viper.GetString(HintTmuxPane)
+	hints.Zellij = viper.GetString(HintZellij)
+	hints.ZellijSessionName = viper.GetString(HintZellijSessionName)
+	hints.ItermSessionID = viper.GetString(HintItermSessionID)
+	hints.KittyWindowID = viper.GetString(HintKittyWindowID)
+	hints.WeztermExecutable = viper.GetString(HintWeztermExecutable)
+
+	conf.Hints = hints
+	ppconf, _ := json.MarshalIndent(conf, "", "    ")
+	log.Debug("Using configuration", "config", string(ppconf))
 
 	return &conf
 }

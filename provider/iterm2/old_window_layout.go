@@ -77,7 +77,7 @@ func (w *oldItermWindow) arrangePanes() (*AppleScript, error) {
 // Create a pane to the right of the current pane
 func (w *oldItermWindow) splitVertically() AsCmd {
 	w.createdPanes++
-	return pressKeystroke("d", Command)
+	return pressKeystroke("d", KeyCommand)
 }
 
 func (w *oldItermWindow) splitVerticallyRemaining() {
@@ -88,7 +88,7 @@ func (w *oldItermWindow) splitVerticallyRemaining() {
 // Create a pane below the current pane
 func (w *oldItermWindow) splitHorizontally() AsCmd {
 	w.createdPanes++
-	return pressKeystroke("D", Command)
+	return pressKeystroke("D", KeyCommand)
 }
 
 func (w *oldItermWindow) splitHorizontallyRemaining() {

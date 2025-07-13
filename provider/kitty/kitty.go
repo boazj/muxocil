@@ -5,7 +5,7 @@ import "github.com/boazj/muxocil/common"
 
 type Kitty struct{}
 
-func NewKitty(opts *common.CommandOpts) (*Kitty, error) {
+func NewProvider(opts *common.CommandOpts) (common.Provider, error) {
 	return nil, nil
 }
 

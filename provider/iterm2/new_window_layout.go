@@ -73,9 +73,9 @@ func (w *newItermWindow) createPane(parentPaneIndex int, childPaneIndex int, spl
 	if split == "" {
 		split = "vertical"
 	}
-	return AsCmd(fmt.Sprintf(` tell pane_%d
+	return Aprintf(` tell pane_%d
      set pane_%d to (split %sly with same profile)
- end tell`, parentPaneIndex, childPaneIndex, split))
+ end tell`, parentPaneIndex, childPaneIndex, split)
 }
 
 // 'even-horizontal' layouts just split vertically across the screen

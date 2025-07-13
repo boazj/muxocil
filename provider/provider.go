@@ -4,7 +4,6 @@ package provider
 import (
 	"fmt"
 	"runtime"
-	"slices"
 
 	"github.com/boazj/muxocil/common"
 	"github.com/boazj/muxocil/provider/iterm2"
@@ -21,9 +20,11 @@ type Mux struct {
 	Display     string
 	Kind        common.ProviderType
 	SupportedOs []common.OS
+	constructor func(*common.CommandOpts) (common.Provider, error)
 }
 
 var (
+	// TODO: encapsulate
 	Providers map[common.MuxID]Mux
 	hints     struct {
 		muxEnv      map[string]common.MuxID
@@ -33,22 +34,56 @@ var (
 )
 
 func init() {
-	Providers = map[common.MuxID]Mux{
-		common.Tmux:    {common.Tmux, "tmux", common.Multiplexer, []common.OS{common.Windows, common.MacOS, common.Linux}},
-		common.Zellij:  {common.Zellij, "Zellij", common.Multiplexer, []common.OS{common.Windows, common.MacOS, common.Linux}},
-		common.Iterm2:  {common.Iterm2, "iTerm2", common.Emulator, []common.OS{common.MacOS}},
-		common.Kitty:   {common.Kitty, "Kitty", common.Emulator, []common.OS{common.MacOS, common.Linux}},
-		common.Wezterm: {common.Wezterm, "WezTerm", common.Emulator, []common.OS{common.Windows, common.MacOS, common.Linux}},
+	Providers = make(map[common.MuxID]Mux)
+	Providers[common.Tmux] = Mux{
+		common.Tmux,
+		"tmux",
+		common.Multiplexer,
+		[]common.OS{common.Windows, common.MacOS, common.Linux},
+		tmux.NewProvider,
+	}
+	Providers[common.Zellij] = Mux{
+		common.Zellij,
+		"Zellij",
+		common.Multiplexer,
+		[]common.OS{common.Windows, common.MacOS, common.Linux},
+		zellij.NewProvider,
+	}
+
+	if runtime.GOOS == "darwin" {
+		Providers[common.Iterm2] = Mux{
+			common.Iterm2,
+			"iTerm2",
+			common.Emulator,
+			[]common.OS{common.MacOS},
+			iterm2.NewProvider,
+		}
+	}
+	if runtime.GOOS != "windows" {
+		Providers[common.Kitty] = Mux{
+			common.Kitty,
+			"Kitty",
+			common.Emulator,
+			[]common.OS{common.MacOS, common.Linux},
+			kitty.NewProvider,
+		}
+	}
+	Providers[common.Wezterm] = Mux{
+		common.Wezterm,
+		"WezTerm",
+		common.Emulator,
+		[]common.OS{common.Windows, common.MacOS, common.Linux},
+		wezterm.NewProvider,
 	}
 
 	hints.muxEnv = map[string]common.MuxID{
-		"TMUX":                common.Tmux,
-		"TMUX_PANE":           common.Tmux,
-		"ZELLIJ":              common.Zellij,
-		"ZELLIJ_SESSION_NAME": common.Zellij,
-		"ITERM_SESSION_ID":    common.Iterm2,
-		"KITTY_WINDOW_ID":     common.Kitty,
-		"WEZTERM_EXECUTABLE":  common.Wezterm,
+		"Tmux":              common.Tmux,
+		"TmuxPane":          common.Tmux,
+		"Zellij":            common.Zellij,
+		"ZellijSessionName": common.Zellij,
+		"ItermSessionID":    common.Iterm2,
+		"KittyWindowID":     common.Kitty,
+		"WeztermExecutable": common.Wezterm,
 	}
 
 	hints.terminalEnv = map[string]common.MuxID{
@@ -56,57 +91,39 @@ func init() {
 	}
 
 	hints.programEnv = map[string]common.MuxID{
+		// "tmux":      common.Tmux,
 		"iTerm.app": common.Iterm2,
 		"WezTerm":   common.Wezterm,
 	}
 }
 
-func NewProvider(mux Mux, opts *common.CommandOpts) (Provider, error) {
-	switch mux.ID {
-	case common.Iterm2:
-		p, err := iterm2.NewIterm2(opts)
-		return p, utils.Wrap(err, "failed to instantiate provider")
-	case common.Kitty:
-		p, err := kitty.NewKitty(opts)
-		return p, utils.Wrap(err, "failed to instantiate provider")
-	case common.Tmux:
-		p, err := tmux.NewTmux(opts)
-		return p, utils.Wrap(err, "failed to instantiate provider")
-	case common.Wezterm:
-		p, err := wezterm.NewWezterm(opts)
-		return p, utils.Wrap(err, "failed to instantiate provider")
-	case common.Zellij:
-		p, err := zellij.NewZellij(opts)
-		return p, utils.Wrap(err, "failed to instantiate provider")
+func NewProvider(cfg *common.Config, mux Mux, opts *common.CommandOpts) (common.Provider, error) {
+	m, ok := Providers[mux.ID] // fetching again to avoid tempring
+	if !ok {
+		return nil, fmt.Errorf("unsupported multiplexer identifier: %s", mux.ID)
 	}
-	return nil, fmt.Errorf("unsupported multiplexer identifier: %s", mux.ID)
+	p, err := m.constructor(opts)
+	return p, utils.Wrap(err, "failed to instantiate provider")
 }
 
-func FromEnv(opts *common.CommandOpts) (Provider, error) {
-	exclude := make([]common.MuxID, 0)
-	if runtime.GOOS != "darwin" {
-		exclude = append(exclude, common.Iterm2)
-	}
-	if runtime.GOOS == "windows" {
-		exclude = append(exclude, common.Kitty)
-	}
-	term := utils.GetEnvOr("OVERRIDE_TERM", "TERM")
-	program := utils.GetEnvOr("OVERRIDE_TERM_PROGRAM", "TERM_PROGRAM")
+func FromEnv(cfg *common.Config, opts *common.CommandOpts) (common.Provider, error) {
+	term := gofn.FirstNonEmpty(cfg.OverrideTerm, cfg.Term)
+	program := gofn.FirstNonEmpty(cfg.OverrideTermProgram, cfg.TermProgram)
 
 	emu, ok := hints.terminalEnv[term]
-	if ok && !slices.Contains(exclude, emu) {
-		p, err := NewProvider(Providers[emu], opts)
+	if ok {
+		p, err := NewProvider(cfg, Providers[emu], opts)
 		return p, err
 	}
 	emu, ok = hints.programEnv[program]
-	if ok && !slices.Contains(exclude, emu) {
-		p, err := NewProvider(Providers[emu], opts)
+	if ok {
+		p, err := NewProvider(cfg, Providers[emu], opts)
 		return p, err
 	}
 
-	for k, v := range hints.muxEnv {
-		if !slices.Contains(exclude, emu) && utils.IsEnvExists(k) {
-			p, err := NewProvider(Providers[v], opts)
+	for k, v := range processHints(cfg) {
+		if v != "" {
+			p, err := NewProvider(cfg, Providers[hints.muxEnv[k]], opts)
 			return p, err
 		}
 	}
@@ -157,7 +174,7 @@ func NormalizeValidate(session *common.Session) error {
 	return nil
 }
 
-func Process(p Provider, layoutPath string) error {
+func Process(p common.Provider, layoutPath string) error {
 	// TODO: load yml
 	var session *common.Session = nil
 	err := NormalizeValidate(session)
@@ -176,11 +193,7 @@ func Process(p Provider, layoutPath string) error {
 	return nil
 }
 
-type Provider interface {
-	GetID() common.MuxID
-	CreateSession(session *common.Session) error
-	CreateWindow(window *common.Window, index int) error
-	CreatePane(window *common.Window, pane *common.Pane, index int) error
-
-	GetCommads() []string
+func processHints(cfg *common.Config) map[string]string {
+	h, _ := utils.AsStringMap(cfg.Hints)
+	return h
 }

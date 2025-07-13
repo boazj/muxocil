@@ -35,3 +35,12 @@ const (
 	MacOS   = "macOS"
 	Linux   = "Linux"
 )
+
+type Provider interface {
+	GetID() MuxID
+	CreateSession(session *Session) error
+	CreateWindow(window *Window, index int) error
+	CreatePane(window *Window, pane *Pane, index int) error
+
+	GetCommads() []string
+}

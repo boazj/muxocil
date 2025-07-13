@@ -5,7 +5,7 @@ import "github.com/boazj/muxocil/common"
 
 type Zellij struct{}
 
-func NewZellij(opts *common.CommandOpts) (*Zellij, error) {
+func NewProvider(opts *common.CommandOpts) (common.Provider, error) {
 	return nil, nil
 }
 

@@ -13,22 +13,6 @@ import (
 	"github.com/charmbracelet/log"
 )
 
-const asInitiatePane = ` tell %s
-  write text \"%s\"
-  %s
- end tell
-`
-
-const asInitiateWindow = ` tell current session of current window
-  write text "%s"
- end tell
-`
-
-const asFocusOnPaneNewIterm = ` tell pane_%d
-  select
- end tell
-`
-
 // Get version of iTerm. 'iTerm2' (iTerm 2.9+) has better API
 func (t *Iterm2) getVersion() (int, int, int, error) {
 	// TODO: deal with beta and nightly
@@ -119,7 +103,6 @@ func (t *Iterm2) initiatePane(pane int, commands []string, name string) *AppleSc
 	if t.newIterm {
 		tellTarget = fmt.Sprintf("pane_%d", pane)
 	} else {
-		// Converts numbers to 2nd, 3rd, 4th format for Applescript
 		tellTarget = fmt.Sprintf("%s session of current terminal", utils.Ordinal(pane))
 	}
 
@@ -128,7 +111,7 @@ func (t *Iterm2) initiatePane(pane int, commands []string, name string) *AppleSc
 		nameCommand = fmt.Sprintf("set name to \"%s\"", name)
 	}
 	command := strings.Join(commands, "; ")
-	return SingletonScript(AsCmd(fmt.Sprintf(asInitiatePane, tellTarget, command, nameCommand)))
+	return SingletonScript(Aprintf(TellWrite, tellTarget, command, nameCommand))
 }
 
 // Runs the list of commands in the current pane
@@ -136,7 +119,7 @@ func (t *Iterm2) initiatePane(pane int, commands []string, name string) *AppleSc
 //lint:ignore U1000 in dev
 func (t *Iterm2) initiateWindow(commands []string) *AppleScript {
 	command := strings.Join(commands, "; ")
-	return SingletonScript(AsCmd(fmt.Sprintf(asInitiateWindow, command)))
+	return SingletonScript(Aprintf(TellWrite, TargetSessionOfCurWindow, command, ""))
 }
 
 // Switch focus to the specified pane
@@ -152,7 +135,7 @@ func (t *Iterm2) focusOnPane(paneIndex int) *AppleScript {
 
 	// Determine the correct target for Applescript's 'tell' command based upon iTerm version.
 	if t.newIterm {
-		return SingletonScript(AsCmd(fmt.Sprintf(asFocusOnPaneNewIterm, paneIndex)))
+		return SingletonScript(Aprintf(TellPaneSelected, paneIndex))
 	} else {
 		return newAppleScript().Append(utils.Times(paneIndex-1, selectNextPane())...)
 	}

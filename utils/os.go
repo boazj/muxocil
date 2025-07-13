@@ -7,37 +7,6 @@ import (
 	"path/filepath"
 )
 
-func GetEnvOr(primary string, secondary string) string {
-	term, ok := os.LookupEnv(primary)
-	if !ok {
-		term = os.Getenv(secondary)
-	}
-	return term
-}
-
-//lint:ignore U1000 util
-func GetEnvOrLiteral(primary string, literal string) string {
-	term, ok := os.LookupEnv(primary)
-	if !ok {
-		term = literal
-	}
-	return term
-}
-
-//lint:ignore U1000 util
-func GetEnvOrFunc(primary string, fallback func() string) string {
-	term, ok := os.LookupEnv(primary)
-	if !ok {
-		term = fallback()
-	}
-	return term
-}
-
-func IsEnvExists(name string) bool {
-	_, exists := os.LookupEnv(name)
-	return exists
-}
-
 func IsDirectory(path string) (bool, error) {
 	fileInfo, err := os.Stat(path)
 	if err != nil {

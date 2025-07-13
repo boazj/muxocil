@@ -2,12 +2,8 @@
 package iterm2
 
 import (
-	"fmt"
-
 	"github.com/boazj/muxocil/common"
 )
-
-const AppName = "iTerm2"
 
 type Iterm2 struct {
 	newIterm         bool
@@ -21,7 +17,7 @@ func (t *Iterm2) getScript() string {
 	return t.script.Raw()
 }
 
-func NewIterm2(opts *common.CommandOpts) (*Iterm2, error) {
+func NewProvider(opts *common.CommandOpts) (common.Provider, error) {
 	t := &Iterm2{
 		here:             opts.Here,
 		newIterm:         true,
@@ -48,11 +44,32 @@ func NewIterm2(opts *common.CommandOpts) (*Iterm2, error) {
 }
 
 const (
+	TellLaunch = `if %s is not running then
+      tell %s to launch
+    end if
+  `
 	TellActivate  = "tell application \"%s\" to activate"
 	TellCreateTab = `tell current window
       create tab with default profile
     end tell
   `
+	TellWrite = `tell %s
+      write text \"%s\"
+      %s
+    end tell
+  `
+	TellPaneSelected = `tell pane_%d
+      select
+    end tell
+  `
+
+	AppName                  = "iTerm2"
+	OldAppName               = "i term"
+	TargetApp                = "application iTerm2"
+	TargetOldApp             = "i term application"
+	TargetCurSession         = "current session"
+	TargetCurWindow          = "current window"
+	TargetSessionOfCurWindow = TargetCurSession + " of " + TargetCurWindow
 )
 
 func (t *Iterm2) GetID() common.MuxID {
@@ -60,7 +77,7 @@ func (t *Iterm2) GetID() common.MuxID {
 }
 
 func (t *Iterm2) CreateSession(session *common.Session) error {
-	t.script.Append(AsCmd(fmt.Sprintf(TellActivate, AppName)))
+	t.script.Append(Aprintf(TellActivate, AppName))
 
 	// TODO: if I decide to introduce pre, this is the origin
 	// if 'pre' in self.parsed_config:
@@ -68,11 +85,11 @@ func (t *Iterm2) CreateSession(session *common.Session) error {
 
 	if !t.here {
 		if t.newIterm {
-			t.script.Append(TellCreateTab)
+			t.script.Append(Aprintf(TellLaunch, TargetApp, TargetApp), TellCreateTab)
 		} else {
 			t.script.Append(
 				"delay 0.3",
-				"tell i term application \"System Events\" to keystroke \"t\" using command down",
+				pressKeystroke("t", KeyCommand),
 				"delay 0.3",
 			)
 		}
@@ -89,7 +106,7 @@ func (t *Iterm2) CreateWindow(window *common.Window, index int) error {
 	} else {
 		t.script.Append(
 			"delay 0.3",
-			"tell i term application \"System Events\" to keystroke \"t\" using command down",
+			pressKeystroke("t", KeyCommand),
 			"delay 0.3",
 		)
 	}

@@ -5,7 +5,7 @@ import "github.com/boazj/muxocil/common"
 
 type Wezterm struct{}
 
-func NewWezterm(opts *common.CommandOpts) (*Wezterm, error) {
+func NewProvider(opts *common.CommandOpts) (common.Provider, error) {
 	return nil, nil
 }
 

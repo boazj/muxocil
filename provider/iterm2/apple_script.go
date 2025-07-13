@@ -10,9 +10,9 @@ import (
 type AppleScriptKeyModifiers string
 
 const (
-	Command AppleScriptKeyModifiers = "command down"
-	Option  AppleScriptKeyModifiers = "option down"
-	Shift   AppleScriptKeyModifiers = "shift down"
+	KeyCommand AppleScriptKeyModifiers = "command down"
+	KeyOption  AppleScriptKeyModifiers = "option down"
+	KeyShift   AppleScriptKeyModifiers = "shift down"
 )
 
 type AsCmd string
@@ -31,6 +31,10 @@ func newAppleScript() *AppleScript {
 
 func SingletonScript(cmd AsCmd) *AppleScript {
 	return newAppleScript().Append(cmd)
+}
+
+func Aprintf(format string, a ...any) AsCmd {
+	return AsCmd(fmt.Sprintf(format, a...))
 }
 
 func (s *AppleScript) Append(cmds ...AsCmd) *AppleScript {
@@ -60,11 +64,11 @@ func (s *AppleScript) Execute() {
 }
 
 func selectNextPane() AsCmd {
-	return pressKeystroke("]", Command)
+	return pressKeystroke("]", KeyCommand)
 }
 
 func selectPrevPane() AsCmd {
-	return pressKeystroke("[", Command)
+	return pressKeystroke("[", KeyCommand)
 }
 
 func pressKeystroke(key string, modifiers ...AppleScriptKeyModifiers) AsCmd {
@@ -74,11 +78,11 @@ func pressKeystroke(key string, modifiers ...AppleScriptKeyModifiers) AsCmd {
 	} else if len(modifiers) > 1 {
 		mods = fmt.Sprintf("{%s}", strings.Join(utils.ToStringSlice(modifiers), ", "))
 	}
-	return AsCmd(fmt.Sprintf("tell i term application \"System Events\" to keystroke \"%s\" using %s", key, mods))
+	return Aprintf("tell %s \"System Events\" to keystroke \"%s\" using %s", TargetOldApp, key, mods)
 }
 
 func selectColumnTopPane() AsCmd {
-	return pressKeyCode("125", Command, Option)
+	return pressKeyCode("125", KeyCommand, KeyOption)
 }
 
 func pressKeyCode(key string, modifiers ...AppleScriptKeyModifiers) AsCmd {
@@ -88,5 +92,5 @@ func pressKeyCode(key string, modifiers ...AppleScriptKeyModifiers) AsCmd {
 	} else if len(modifiers) > 1 {
 		mods = fmt.Sprintf("{%s}", strings.Join(utils.ToStringSlice(modifiers), ", "))
 	}
-	return AsCmd(fmt.Sprintf("tell i term application \"System Events\" to key code \"%s\" using %s", key, mods))
+	return Aprintf("tell %s \"System Events\" to key code \"%s\" using %s", TargetOldApp, key, mods)
 }

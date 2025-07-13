@@ -34,7 +34,7 @@ var useCmd = &cobra.Command{
 	},
 }
 
-func getProvider(cfg *common.Config, opts *common.CommandOpts) provider.Provider {
+func getProvider(cfg *common.Config, opts *common.CommandOpts) common.Provider {
 	if cfg.UseProviderFailFast || (!cfg.UseProviderFailFast && !cfg.InfferProviderFromEnv) {
 		log.Debug(
 			"Fail fast mode",
@@ -48,14 +48,14 @@ func getProvider(cfg *common.Config, opts *common.CommandOpts) provider.Provider
 			log.Error("Unsupported use provider configuration", "provider", cfg.UseProvider)
 			os.Exit(common.ExitProviderFailFast)
 		}
-		prov, err := provider.NewProvider(mux, opts)
+		prov, err := provider.NewProvider(cfg, mux, opts)
 		if err != nil {
 			log.Error("Failed to create provider", "provider", cfg.UseProvider, "error", err)
 			os.Exit(common.ExitProviderFailFast)
 		}
 
 		if cfg.ValidateProviderFromEnv {
-			envProv, err := provider.FromEnv(opts)
+			envProv, err := provider.FromEnv(cfg, opts)
 			if err != nil {
 				log.Error("Failed to create provider", "error", err)
 				os.Exit(common.ExitProviderFailFast)
@@ -72,17 +72,17 @@ func getProvider(cfg *common.Config, opts *common.CommandOpts) provider.Provider
 	mux, ok := provider.Providers[common.MuxID(cfg.UseProvider)]
 	if !ok {
 		log.Info("Unsupported use provider configuration, falling back to inffered provider", "provider", cfg.UseProvider)
-		envProv, err := provider.FromEnv(opts)
+		envProv, err := provider.FromEnv(cfg, opts)
 		if err != nil {
 			log.Error("Failed to create fallback provider", "error", err)
 			os.Exit(common.ExitProviderFailure)
 		}
 		return envProv
 	}
-	prov, err := provider.NewProvider(mux, opts)
+	prov, err := provider.NewProvider(cfg, mux, opts)
 	if err != nil {
 		log.Error("Failed to create provider, falling back to inffered provider", "error", err)
-		envProv, err := provider.FromEnv(opts)
+		envProv, err := provider.FromEnv(cfg, opts)
 		if err != nil {
 			log.Error("Failed to create fallback provider", "error", err)
 			os.Exit(common.ExitProviderFailure)
@@ -112,7 +112,7 @@ func getLayoutPath(cfg *common.Config, candidate string) string {
 				return utils.IsYaml(path)
 			})
 			for _, l := range layouts {
-				if candidate == filepath.Base(l) || candidate == utils.FilenamePart(l) {
+				if candidate == filepath.Base(l) || candidate == utils.GetFileNamePart(l) {
 					layout = l
 					break
 				}

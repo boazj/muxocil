@@ -11,6 +11,7 @@ import (
 	"github.com/charmbracelet/log"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"github.com/tiendc/gofn"
 )
 
 const (
@@ -22,9 +23,11 @@ var bcCmd = &cobra.Command{
 	Use:   "bc",
 	Short: "Command compatible with iTermocil and teamocil, can be used in an alias to replace both tools",
 	Run: func(cmd *cobra.Command, args []string) {
+		cfg := common.GetConfig()
 		if path := viper.GetString("bc.layout"); path != "" {
 			if viper.GetBool("bc.edit") {
-				editor := utils.GetEnvOrLiteral("EDITOR", "vi")
+
+				editor := gofn.FirstNonEmpty(cfg.OverrideEditor, cfg.Editor, "vi")
 				cmd := exec.Command(editor, path) // #nosec G204
 				cmd.Stdin = os.Stdin
 				cmd.Stdout = os.Stdout

@@ -3,6 +3,8 @@
 layout_search_locations = [ "$HOME/.teamocil" ]
 # List of locations to exclude in layout search, enables to override hardcoded default of backward compatible commands
 layout_exclude_locations = []
+# Editor override to allow a differnt editor from the one defined in the EDITOR env var
+override_editor = ""
 
 [providers]
 # Force usage of a specific provider. The value detailed here will be validated on execution:

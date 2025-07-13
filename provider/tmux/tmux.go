@@ -25,7 +25,7 @@ type Tmux struct {
 	cmds []string
 }
 
-func NewTmux(opts *common.CommandOpts) (*Tmux, error) {
+func NewProvider(opts *common.CommandOpts) (common.Provider, error) {
 	baseIndex, err := getTmuxOptionNumericValue("base-index")
 	if err != nil {
 		return nil, err
