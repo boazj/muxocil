@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"fmt"
 	"reflect"
 	"strings"
 	"testing"
@@ -32,7 +31,6 @@ func TestAsStringMap(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			ans, err := AsStringMap(tt.input)
-			fmt.Printf("%v l%d %v l%d\n", ans, len(ans), tt.want, len(tt.want))
 			if tt.want != nil && !reflect.DeepEqual(ans, tt.want) {
 				t.Errorf("got %v, want %v", ans, tt.want)
 			}
