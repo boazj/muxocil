@@ -1,12 +1,15 @@
 // Package zellij represents the provider for the Zellij Multiplexr
 package zellij
 
-import "github.com/boazj/muxocil/common"
+import (
+	"github.com/boazj/muxocil/common"
+	"github.com/boazj/muxocil/utils"
+)
 
 type Zellij struct{}
 
 func NewProvider(opts *common.CommandOpts) (common.Provider, error) {
-	return nil, nil
+	return &Zellij{}, nil
 }
 
 func (z *Zellij) GetID() common.MuxID {
@@ -31,4 +34,10 @@ func (z *Zellij) CreatePane(window *common.Window, pane *common.Pane, index int)
 func (z *Zellij) GetCommads() []string {
 	// TODO: impl
 	return nil
+}
+
+func Detect(cfg *common.Config) (bool, bool) {
+	inZellij := cfg.Hints.Zellij != "" && cfg.Hints.ZellijSessionName != ""
+	hasZellij := utils.CheckIfCmdInPath("zellij")
+	return inZellij, hasZellij
 }

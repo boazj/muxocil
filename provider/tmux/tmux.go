@@ -8,6 +8,8 @@ import (
 	"strings"
 
 	"github.com/boazj/muxocil/common"
+	"github.com/boazj/muxocil/utils"
+	"github.com/tiendc/gofn"
 )
 
 type Tmux struct {
@@ -89,6 +91,13 @@ func (t *Tmux) CreatePane(window *common.Window, pane *common.Pane, index int) e
 
 func (t *Tmux) GetCommads() []string {
 	return t.cmds
+}
+
+func Detect(cfg *common.Config) (bool, bool) {
+	program := gofn.FirstNonEmpty(cfg.OverrideTermProgram, cfg.TermProgram)
+	inTmux := cfg.Hints.Tmux != "" && cfg.Hints.TmuxPane != "" && program == "tmux"
+	hasTmux := utils.CheckIfCmdInPath("tmux")
+	return inTmux, hasTmux
 }
 
 func getTmuxOptionValue(option string) (string, error) {

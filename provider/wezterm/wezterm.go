@@ -1,12 +1,15 @@
 // Package wezterm represents the provider for the WezTerm Terminal Emulator
 package wezterm
 
-import "github.com/boazj/muxocil/common"
+import (
+	"github.com/boazj/muxocil/common"
+	"github.com/tiendc/gofn"
+)
 
 type Wezterm struct{}
 
 func NewProvider(opts *common.CommandOpts) (common.Provider, error) {
-	return nil, nil
+	return &Wezterm{}, nil
 }
 
 func (w *Wezterm) GetID() common.MuxID {
@@ -31,4 +34,10 @@ func (w *Wezterm) CreatePane(window *common.Window, pane *common.Pane, index int
 func (w *Wezterm) GetCommads() []string {
 	// TODO: impl
 	return nil
+}
+
+func Detect(cfg *common.Config) (bool, bool) {
+	program := gofn.FirstNonEmpty(cfg.OverrideTermProgram, cfg.TermProgram)
+	inWezterm := program == "WezTerm"
+	return inWezterm, false
 }

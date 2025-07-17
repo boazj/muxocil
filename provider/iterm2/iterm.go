@@ -3,6 +3,7 @@ package iterm2
 
 import (
 	"github.com/boazj/muxocil/common"
+	"github.com/tiendc/gofn"
 )
 
 type Iterm2 struct {
@@ -121,4 +122,10 @@ func (t *Iterm2) CreatePane(window *common.Window, pane *common.Pane, index int)
 func (t *Iterm2) GetCommads() []string {
 	// TODO: impl
 	return nil
+}
+
+func Detect(cfg *common.Config) (bool, bool) {
+	program := gofn.FirstNonEmpty(cfg.OverrideTermProgram, cfg.TermProgram)
+	inIterm2 := program == "iTerm.app" && cfg.Hints.ItermSessionID != ""
+	return inIterm2, false
 }
