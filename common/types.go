@@ -26,14 +26,14 @@ const (
 )
 
 const (
-	Multiplexer = "Multiplexer"
-	Emulator    = "Emulator"
+	Multiplexer ProviderType = "Multiplexer"
+	Emulator    ProviderType = "Emulator"
 )
 
 const (
-	Windows = "Windows"
-	MacOS   = "macOS"
-	Linux   = "Linux"
+	Windows OS = "Windows"
+	MacOS   OS = "macOS"
+	Linux   OS = "Linux"
 )
 
 type Provider interface {
