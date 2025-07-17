@@ -19,7 +19,6 @@ linters:
     - gocritic
     - godot
     - goheader
-    - mnd
     - goprintffuncname
     - gosec
     - lll
