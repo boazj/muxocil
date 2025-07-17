@@ -5,6 +5,7 @@ import (
 	"math"
 )
 
+//nolint:mnd
 func Ordinal(number int) string {
 	ord := "th"
 	switch AbsInt(number) % 100 {

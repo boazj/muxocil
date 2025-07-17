@@ -4,6 +4,7 @@ package utils
 import (
 	"io/fs"
 	"os"
+	"os/exec"
 	"path/filepath"
 )
 
@@ -28,4 +29,9 @@ func GetFilesRecursively(root string, filter func(string) bool) []string {
 		return nil
 	})
 	return files
+}
+
+func CheckIfCmdInPath(cmd string) bool {
+	_, err := exec.LookPath(cmd)
+	return err == nil
 }
