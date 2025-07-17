@@ -33,7 +33,7 @@ var rootCmd = &cobra.Command{
 func Execute() {
 	err := rootCmd.Execute()
 	if err != nil {
-		log.Fatal("General error occured", "error", err)
+		log.Fatal("General error occurred", "error", err)
 		os.Exit(common.ExitGeneralError)
 	}
 }
