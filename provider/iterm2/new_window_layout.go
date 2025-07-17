@@ -60,11 +60,11 @@ func (w *newItermWindow) arrangePanes() (*AppleScript, error) {
 		// If we have just one pane we don't need to do any splitting.
 		return &AppleScript{}, nil
 	}
-	strat, ok := w.layoutStrategy[w.layout]
+	strategy, ok := w.layoutStrategy[w.layout]
 	if !ok {
 		return &AppleScript{}, fmt.Errorf("unknown layout setting")
 	}
-	strat()
+	strategy()
 
 	return &w.script, nil
 }
@@ -85,7 +85,7 @@ func (w *newItermWindow) evenHorizontal() {
 	}
 }
 
-// 'even-vertical' layouts just split horizontally down the screen
+// 'even-vertical' layouts just split horizontally down the screen.
 func (w *newItermWindow) evenVertical() {
 	for i := 2; i < w.panes+1; i++ {
 		w.script.Append(w.createPane(i-1, i, "horizontal"))
@@ -93,7 +93,7 @@ func (w *newItermWindow) evenVertical() {
 }
 
 // 'main-vertical' layouts have one left pane that is full height,
-// and then split the remaining panes horizontally down the right
+// and then split the remaining panes horizontally down the right.
 func (w *newItermWindow) mainVertical() {
 	w.script.Append(w.createPane(1, 2, "vertical"))
 	for i := 3; i < w.panes+1; i++ {
@@ -102,7 +102,7 @@ func (w *newItermWindow) mainVertical() {
 }
 
 // 'main-vertical-flipped' layouts have one right pane that is full height,
-// and then split the remaining panes horizontally down the left
+// and then split the remaining panes horizontally down the left.
 func (w *newItermWindow) mainVerticalFlipped() {
 	w.script.Append(w.createPane(1, w.panes, "vertical"))
 	for i := 2; i < w.panes; i++ {
@@ -111,7 +111,7 @@ func (w *newItermWindow) mainVerticalFlipped() {
 }
 
 // 'main-horizontal' layouts have one upper pane that is full width,
-// and then split the remaining panes vertically along the buttom
+// and then split the remaining panes vertically along the buttom.
 func (w *newItermWindow) mainHorizontal() {
 	w.script.Append(w.createPane(1, 2, "horizontal"))
 	for i := 3; i < w.panes+1; i++ {
@@ -120,7 +120,7 @@ func (w *newItermWindow) mainHorizontal() {
 }
 
 // 'main-horizontal-flipped' layouts have one lower pane that is full width,
-// and then split the remaining panes vertically along the top
+// and then split the remaining panes vertically along the top.
 func (w *newItermWindow) mainHorizontalFlipped() {
 	w.script.Append(w.createPane(1, w.panes, "horizontal"))
 	for i := 2; i < w.panes; i++ {
@@ -155,7 +155,7 @@ func (w *newItermWindow) threeColumns() {
 }
 
 // 'double-main-horizontal' layouts have two bottom panes that split the width
-// and then split the remaining panes vertically across the top
+// and then split the remaining panes vertically across the top.
 func (w *newItermWindow) doubleMainHorizontal() {
 	w.script.Append(w.createPane(1, w.panes-1, "horizontal"))
 	for i := 2; i < w.panes-1; i++ {
@@ -164,7 +164,7 @@ func (w *newItermWindow) doubleMainHorizontal() {
 }
 
 // 'double-main-vertical' layouts have two left panes that are full height,
-// and then split the remaining panes horizontally down the right
+// and then split the remaining panes horizontally down the right.
 func (w *newItermWindow) doubleMainVertical() {
 	w.script.Append(w.createPane(1, 2, "vertical"))
 	w.script.Append(w.createPane(2, 3, "vertical"))

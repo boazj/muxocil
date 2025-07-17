@@ -90,7 +90,7 @@ func (t *Iterm2) arrangePanesOldIterm(panes int, layout common.MuxLayout) *Apple
 	return ac
 }
 
-// Once we have layed out the panes we need, we can now navigate
+// Once we have laid out the panes we need, we can now navigate
 // to the specified starting directory and run the specified
 // commands for each pane.
 //
@@ -130,7 +130,7 @@ func (t *Iterm2) focusOnPane(paneIndex int) *AppleScript {
 		return &AppleScript{}
 	}
 	if !t.newIterm && !t.here {
-		paneIndex = paneIndex - 1
+		paneIndex--
 	}
 
 	// Determine the correct target for Applescript's 'tell' command based upon iTerm version.

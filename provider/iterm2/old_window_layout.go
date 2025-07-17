@@ -61,11 +61,11 @@ func (w *oldItermWindow) arrangePanes() (*AppleScript, error) {
 		// If we have just one pane we don't need to do any splitting.
 		return &AppleScript{}, nil
 	}
-	strat, ok := w.layoutStrategy[w.layout]
+	strategy, ok := w.layoutStrategy[w.layout]
 	if !ok {
 		return &AppleScript{}, fmt.Errorf("unknown layout setting")
 	}
-	strat()
+	strategy()
 
 	// This is all keystroke based and thus takes a moment to happen,
 	// so unfortunately (for old iTerm) we have to wait a moment to
@@ -74,7 +74,7 @@ func (w *oldItermWindow) arrangePanes() (*AppleScript, error) {
 	return &w.script, nil
 }
 
-// Create a pane to the right of the current pane
+// Create a pane to the right of the current pane.
 func (w *oldItermWindow) splitVertically() AsCmd {
 	w.createdPanes++
 	return pressKeystroke("d", KeyCommand)
@@ -85,7 +85,7 @@ func (w *oldItermWindow) splitVerticallyRemaining() {
 	w.script.Append(utils.Times(times, w.splitVertically())...)
 }
 
-// Create a pane below the current pane
+// Create a pane below the current pane.
 func (w *oldItermWindow) splitHorizontally() AsCmd {
 	w.createdPanes++
 	return pressKeystroke("D", KeyCommand)
@@ -96,20 +96,20 @@ func (w *oldItermWindow) splitHorizontallyRemaining() {
 	w.script.Append(utils.Times(times, w.splitHorizontally())...)
 }
 
-// 'even-horizontal' layouts just split vertically across the screen
+// 'even-horizontal' layouts just split vertically across the screen.
 func (w *oldItermWindow) evenHorizontal() {
 	w.splitVerticallyRemaining()
 	w.script.Append(selectNextPane())
 }
 
-// 'even-vertical' layouts just split horizontally down the screen
+// 'even-vertical' layouts just split horizontally down the screen.
 func (w *oldItermWindow) evenVertical() {
 	w.splitHorizontallyRemaining()
 	w.script.Append(selectNextPane())
 }
 
 // 'main-vertical' layouts have one left pane that is full height,
-// and then split the remaining panes horizontally down the right
+// and then split the remaining panes horizontally down the right.
 func (w *oldItermWindow) mainVertical() {
 	w.script.Append(w.splitVertically())
 	w.splitHorizontallyRemaining()
@@ -117,7 +117,7 @@ func (w *oldItermWindow) mainVertical() {
 }
 
 // 'main-vertical-flipped' layouts have one right pane that is full height,
-// and then split the remaining panes horizontally down the left
+// and then split the remaining panes horizontally down the left.
 func (w *oldItermWindow) mainVerticalFlipped() {
 	w.script.Append(w.splitVertically())
 	w.script.Append(selectPrevPane())
@@ -125,7 +125,7 @@ func (w *oldItermWindow) mainVerticalFlipped() {
 }
 
 // 'main-horizontal' layouts have one upper pane that is full width,
-// and then split the remaining panes vertically along the buttom
+// and then split the remaining panes vertically along the buttom.
 func (w *oldItermWindow) mainHorizontal() {
 	w.script.Append(w.splitHorizontally())
 	w.splitVerticallyRemaining()
@@ -133,7 +133,7 @@ func (w *oldItermWindow) mainHorizontal() {
 }
 
 // 'main-horizontal-flipped' layouts have one lower pane that is full width,
-// and then split the remaining panes vertically along the top
+// and then split the remaining panes vertically along the top.
 func (w *oldItermWindow) mainHorizontalFlipped() {
 	w.script.Append(w.splitHorizontally())
 	w.script.Append(selectPrevPane())
@@ -167,7 +167,7 @@ func (w *oldItermWindow) threeColumns() {
 }
 
 // 'double-main-horizontal' layouts have two left panes that are full height,
-// and then split the remaining panes horizontally down the right
+// and then split the remaining panes horizontally down the right.
 func (w *oldItermWindow) doubleMainHorizontal() {
 	w.script.Append(w.splitVertically())
 	if w.panes >= 2 {
@@ -177,7 +177,7 @@ func (w *oldItermWindow) doubleMainHorizontal() {
 }
 
 // 'double-main-vertical' layouts have two bottom panes that split the width
-// and then split the remaining panes vertically across the top
+// and then split the remaining panes vertically across the top.
 func (w *oldItermWindow) doubleMainVertical() {
 	w.script.Append(w.splitHorizontally())
 	w.script.Append(w.splitVertically())
