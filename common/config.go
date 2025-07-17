@@ -42,7 +42,6 @@ const (
 	HintZellijSessionName = "hints.zellij_session_name"
 	HintItermSessionID    = "hints.iterm_session_id"
 	HintKittyWindowID     = "hints.kitty_window_id"
-	HintWeztermExecutable = "hints.wezterm_executable"
 )
 
 type Config struct {
@@ -76,7 +75,6 @@ type EnvHints struct {
 	ZellijSessionName string
 	ItermSessionID    string
 	KittyWindowID     string
-	WeztermExecutable string
 }
 
 func GetConfig() *Config {
@@ -97,19 +95,18 @@ func GetConfig() *Config {
 	viper.SetDefault(LayoutWinIgnoreLayout, false)
 	viper.SetDefault(LayoutSessionRepalceIfExists, true)
 
-	viper.BindEnv(EnvEditor, "EDITOR")
-	viper.BindEnv(EnvTerm, "TERM")
-	viper.BindEnv(EnvOverrideTerm, "OVERRIDE_TERM")
-	viper.BindEnv(EnvTermProgram, "TERM_PROGRAM")
-	viper.BindEnv(EnvOverrideTermProgram, "OVERRIDE_TERM_PROGRAM")
+	_ = viper.BindEnv(EnvEditor, "EDITOR")
+	_ = viper.BindEnv(EnvTerm, "TERM")
+	_ = viper.BindEnv(EnvOverrideTerm, "OVERRIDE_TERM")
+	_ = viper.BindEnv(EnvTermProgram, "TERM_PROGRAM")
+	_ = viper.BindEnv(EnvOverrideTermProgram, "OVERRIDE_TERM_PROGRAM")
 
-	viper.BindEnv(HintTmux, "TMUX")
-	viper.BindEnv(HintTmuxPane, "TMUX_PANE")
-	viper.BindEnv(HintZellij, "ZELLIJ")
-	viper.BindEnv(HintZellijSessionName, "ZELLIJ_SESSION_NAME")
-	viper.BindEnv(HintItermSessionID, "ITERM_SESSION_ID")
-	viper.BindEnv(HintKittyWindowID, "KITTY_WINDOW_ID")
-	viper.BindEnv(HintWeztermExecutable, "WEZTERM_EXECUTABLE")
+	_ = viper.BindEnv(HintTmux, "TMUX")
+	_ = viper.BindEnv(HintTmuxPane, "TMUX_PANE")
+	_ = viper.BindEnv(HintZellij, "ZELLIJ")
+	_ = viper.BindEnv(HintZellijSessionName, "ZELLIJ_SESSION_NAME")
+	_ = viper.BindEnv(HintItermSessionID, "ITERM_SESSION_ID")
+	_ = viper.BindEnv(HintKittyWindowID, "KITTY_WINDOW_ID")
 
 	conf.LayoutSearchLocations = viper.GetStringSlice(ConfSearchLocations)
 	conf.LayoutSearchExcludeLocations = viper.GetStringSlice(ConfSearchExcludeLocations)
@@ -138,7 +135,6 @@ func GetConfig() *Config {
 	hints.ZellijSessionName = viper.GetString(HintZellijSessionName)
 	hints.ItermSessionID = viper.GetString(HintItermSessionID)
 	hints.KittyWindowID = viper.GetString(HintKittyWindowID)
-	hints.WeztermExecutable = viper.GetString(HintWeztermExecutable)
 
 	conf.Hints = hints
 	ppconf, _ := json.MarshalIndent(conf, "", "    ")

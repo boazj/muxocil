@@ -17,7 +17,7 @@ var providersCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		rows := make([][]string, 0)
 
-		for _, p := range provider.Providers {
+		for _, p := range provider.ProviderDefs.GetSupportedProviders() {
 			rows = append(rows, []string{
 				p.Display,
 				string(p.Kind),

@@ -3,127 +3,40 @@ package provider
 
 import (
 	"fmt"
-	"runtime"
 
 	"github.com/boazj/muxocil/common"
-	"github.com/boazj/muxocil/provider/iterm2"
-	"github.com/boazj/muxocil/provider/kitty"
-	"github.com/boazj/muxocil/provider/tmux"
-	"github.com/boazj/muxocil/provider/wezterm"
-	"github.com/boazj/muxocil/provider/zellij"
 	"github.com/boazj/muxocil/utils"
 	"github.com/tiendc/gofn"
 )
 
-type Mux struct {
-	ID          common.MuxID
-	Display     string
-	Kind        common.ProviderType
-	SupportedOs []common.OS
-	constructor func(*common.CommandOpts) (common.Provider, error)
-}
-
-var (
-	// TODO: encapsulate
-	Providers map[common.MuxID]Mux
-	hints     struct {
-		muxEnv      map[string]common.MuxID
-		terminalEnv map[string]common.MuxID
-		programEnv  map[string]common.MuxID
-	}
-)
+var ProviderDefs *providerDefs
 
 func init() {
-	Providers = make(map[common.MuxID]Mux)
-	Providers[common.Tmux] = Mux{
-		common.Tmux,
-		"tmux",
-		common.Multiplexer,
-		[]common.OS{common.Windows, common.MacOS, common.Linux},
-		tmux.NewProvider,
-	}
-	Providers[common.Zellij] = Mux{
-		common.Zellij,
-		"Zellij",
-		common.Multiplexer,
-		[]common.OS{common.Windows, common.MacOS, common.Linux},
-		zellij.NewProvider,
-	}
-
-	if runtime.GOOS == "darwin" {
-		Providers[common.Iterm2] = Mux{
-			common.Iterm2,
-			"iTerm2",
-			common.Emulator,
-			[]common.OS{common.MacOS},
-			iterm2.NewProvider,
-		}
-	}
-	if runtime.GOOS != "windows" {
-		Providers[common.Kitty] = Mux{
-			common.Kitty,
-			"Kitty",
-			common.Emulator,
-			[]common.OS{common.MacOS, common.Linux},
-			kitty.NewProvider,
-		}
-	}
-	Providers[common.Wezterm] = Mux{
-		common.Wezterm,
-		"WezTerm",
-		common.Emulator,
-		[]common.OS{common.Windows, common.MacOS, common.Linux},
-		wezterm.NewProvider,
-	}
-
-	hints.muxEnv = map[string]common.MuxID{
-		"Tmux":              common.Tmux,
-		"TmuxPane":          common.Tmux,
-		"Zellij":            common.Zellij,
-		"ZellijSessionName": common.Zellij,
-		"ItermSessionID":    common.Iterm2,
-		"KittyWindowID":     common.Kitty,
-		"WeztermExecutable": common.Wezterm,
-	}
-
-	hints.terminalEnv = map[string]common.MuxID{
-		"xterm-kitty": common.Kitty,
-	}
-
-	hints.programEnv = map[string]common.MuxID{
-		// "tmux":      common.Tmux,
-		"iTerm.app": common.Iterm2,
-		"WezTerm":   common.Wezterm,
-	}
+	ProviderDefs = CreateProviderDefs()
 }
 
-func NewProvider(cfg *common.Config, mux Mux, opts *common.CommandOpts) (common.Provider, error) {
-	m, ok := Providers[mux.ID] // fetching again to avoid tempring
+func NewProvider(cfg *common.Config, mux common.MuxID, opts *common.CommandOpts) (common.Provider, error) {
+	m, ok := ProviderDefs.GetProvider(mux)
 	if !ok {
-		return nil, fmt.Errorf("unsupported multiplexer identifier: %s", mux.ID)
+		return nil, fmt.Errorf("unsupported multiplexer identifier: %s", mux)
 	}
 	p, err := m.constructor(opts)
 	return p, utils.Wrap(err, "failed to instantiate provider")
 }
 
 func FromEnv(cfg *common.Config, opts *common.CommandOpts) (common.Provider, error) {
-	term := gofn.FirstNonEmpty(cfg.OverrideTerm, cfg.Term)
-	program := gofn.FirstNonEmpty(cfg.OverrideTermProgram, cfg.TermProgram)
-
-	emu, ok := hints.terminalEnv[term]
-	if ok {
-		p, err := NewProvider(cfg, Providers[emu], opts)
-		return p, err
-	}
-	emu, ok = hints.programEnv[program]
-	if ok {
-		p, err := NewProvider(cfg, Providers[emu], opts)
-		return p, err
-	}
-
-	for k, v := range processHints(cfg) {
-		if v != "" {
-			p, err := NewProvider(cfg, Providers[hints.muxEnv[k]], opts)
+	muxers := ProviderDefs.GetSupportedMultiplexers()
+	emus := ProviderDefs.GetSupportedEmulators()
+	// Ensure multiplexers will be checked before emulator multiplexers as they are more specific
+	providers := gofn.Concat(muxers, emus)
+	for _, v := range providers {
+		in, has := v.detector(cfg)
+		if has && !in && cfg.LaunchMultiplexerApp {
+			// TODO: launch application if present, currently all emus return has == false
+			// might be wrong
+		}
+		if in {
+			p, err := NewProvider(cfg, v.ID, opts)
 			return p, err
 		}
 	}
@@ -191,9 +104,4 @@ func Process(p common.Provider, layoutPath string) error {
 		}
 	}
 	return nil
-}
-
-func processHints(cfg *common.Config) map[string]string {
-	h, _ := utils.AsStringMap(cfg.Hints)
-	return h
 }

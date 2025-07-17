@@ -43,12 +43,12 @@ func getProvider(cfg *common.Config, opts *common.CommandOpts) common.Provider {
 			"not failfast not inffer",
 			!cfg.UseProviderFailFast && !cfg.InfferProviderFromEnv,
 		)
-		mux, ok := provider.Providers[common.MuxID(cfg.UseProvider)]
+		mux, ok := provider.ProviderDefs.GetProvider(common.MuxID(cfg.UseProvider))
 		if !ok {
 			log.Error("Unsupported use provider configuration", "provider", cfg.UseProvider)
 			os.Exit(common.ExitProviderFailFast)
 		}
-		prov, err := provider.NewProvider(cfg, mux, opts)
+		prov, err := provider.NewProvider(cfg, mux.ID, opts)
 		if err != nil {
 			log.Error("Failed to create provider", "provider", cfg.UseProvider, "error", err)
 			os.Exit(common.ExitProviderFailFast)
@@ -69,7 +69,7 @@ func getProvider(cfg *common.Config, opts *common.CommandOpts) common.Provider {
 		log.Info("Provider creation successful", "provider", cfg.UseProvider)
 		return prov
 	}
-	mux, ok := provider.Providers[common.MuxID(cfg.UseProvider)]
+	mux, ok := provider.ProviderDefs.GetProvider(common.MuxID(cfg.UseProvider))
 	if !ok {
 		log.Info("Unsupported use provider configuration, falling back to inffered provider", "provider", cfg.UseProvider)
 		envProv, err := provider.FromEnv(cfg, opts)
@@ -79,7 +79,7 @@ func getProvider(cfg *common.Config, opts *common.CommandOpts) common.Provider {
 		}
 		return envProv
 	}
-	prov, err := provider.NewProvider(cfg, mux, opts)
+	prov, err := provider.NewProvider(cfg, mux.ID, opts)
 	if err != nil {
 		log.Error("Failed to create provider, falling back to inffered provider", "error", err)
 		envProv, err := provider.FromEnv(cfg, opts)
@@ -108,9 +108,7 @@ func getLayoutPath(cfg *common.Config, candidate string) string {
 		layout = os.ExpandEnv(candidate)
 	} else {
 		for _, loc := range cfg.GetLayoutSearchLocations() {
-			layouts := utils.GetFilesRecursively(loc, func(path string) bool {
-				return utils.IsYaml(path)
-			})
+			layouts := utils.GetFilesRecursively(loc, utils.IsYaml)
 			for _, l := range layouts {
 				if candidate == filepath.Base(l) || candidate == utils.GetFileNamePart(l) {
 					layout = l
