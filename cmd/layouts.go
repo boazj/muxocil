@@ -19,9 +19,7 @@ var layoutsCmd = &cobra.Command{
 
 		rows := make([][]string, 0)
 		for _, loc := range cfg.GetLayoutSearchLocations() {
-			layouts := utils.GetFilesRecursively(loc, func(path string) bool {
-				return utils.IsYaml(path)
-			})
+			layouts := utils.GetFilesRecursively(loc, utils.IsYaml)
 			for _, l := range layouts {
 				rows = append(rows, []string{l, filepath.Base(l)})
 			}
