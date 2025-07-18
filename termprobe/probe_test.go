@@ -12,36 +12,36 @@ import (
 var (
 	Empty = []byte{}
 
-	Basic7    = gofn.Concat(DCS7, []byte{'>', '|', 't', 'e', 's', 't'}, ST7)
-	Basic8    = []byte{DCS8, '>', '|', 't', 'e', 's', 't', ST8}
-	BasicMix  = gofn.Concat(DCS7, []byte{'>', '|', 't', 'e', 's', 't', ST8})
-	BasicMix2 = gofn.Concat([]byte{DCS8, '>', '|', 't', 'e', 's', 't'}, ST7)
+	Basic7    = gofn.Concat(DCS, []byte{'>', '|', 't', 'e', 's', 't'}, ST)
+	Basic8    = []byte{C1DCS, '>', '|', 't', 'e', 's', 't', C1ST}
+	BasicMix  = gofn.Concat(DCS, []byte{'>', '|', 't', 'e', 's', 't', C1ST})
+	BasicMix2 = gofn.Concat([]byte{C1DCS, '>', '|', 't', 'e', 's', 't'}, ST)
 
-	MissingFullPrefix7    = gofn.Concat([]byte{'>', '|', 't', 'e', 's', 't'}, ST7)
-	MissingPartialPrefix7 = gofn.Concat([]byte{DCS7[0], '>', '|', 't', 'e', 's', 't'}, ST7)
-	MissingPrefix8        = []byte{'>', '|', 't', 'e', 's', 't', ST8}
+	MissingFullPrefix7    = gofn.Concat([]byte{'>', '|', 't', 'e', 's', 't'}, ST)
+	MissingPartialPrefix7 = gofn.Concat([]byte{DCS[0], '>', '|', 't', 'e', 's', 't'}, ST)
+	MissingPrefix8        = []byte{'>', '|', 't', 'e', 's', 't', C1ST}
 
-	MissingMid71     = gofn.Concat(DCS7, []byte{'>', 't', 'e', 's', 't'}, ST7)
-	MissingMid72     = gofn.Concat(DCS7, []byte{'|', 't', 'e', 's', 't'}, ST7)
-	MissingMid73     = gofn.Concat(DCS7, []byte{'t', 'e', 's', 't'}, ST7)
-	MissingMid81     = []byte{DCS8, '>', 't', 'e', 's', 't', ST8}
-	MissingMid82     = []byte{DCS8, '|', 't', 'e', 's', 't', ST8}
-	MissingMid83     = []byte{DCS8, 't', 'e', 's', 't', ST8}
-	MissingMidMix781 = gofn.Concat(DCS7, []byte{'>', 't', 'e', 's', 't', ST8})
-	MissingMidMix782 = gofn.Concat(DCS7, []byte{'|', 't', 'e', 's', 't', ST8})
-	MissingMidMix783 = gofn.Concat(DCS7, []byte{'t', 'e', 's', 't', ST8})
-	MissingMidMix871 = gofn.Concat([]byte{DCS8, '>', 't', 'e', 's', 't'}, ST7)
-	MissingMidMix872 = gofn.Concat([]byte{DCS8, '|', 't', 'e', 's', 't'}, ST7)
-	MissingMidMix873 = gofn.Concat([]byte{DCS8, 't', 'e', 's', 't'}, ST7)
+	MissingMid71     = gofn.Concat(DCS, []byte{'>', 't', 'e', 's', 't'}, ST)
+	MissingMid72     = gofn.Concat(DCS, []byte{'|', 't', 'e', 's', 't'}, ST)
+	MissingMid73     = gofn.Concat(DCS, []byte{'t', 'e', 's', 't'}, ST)
+	MissingMid81     = []byte{C1DCS, '>', 't', 'e', 's', 't', C1ST}
+	MissingMid82     = []byte{C1DCS, '|', 't', 'e', 's', 't', C1ST}
+	MissingMid83     = []byte{C1DCS, 't', 'e', 's', 't', C1ST}
+	MissingMidMix781 = gofn.Concat(DCS, []byte{'>', 't', 'e', 's', 't', C1ST})
+	MissingMidMix782 = gofn.Concat(DCS, []byte{'|', 't', 'e', 's', 't', C1ST})
+	MissingMidMix783 = gofn.Concat(DCS, []byte{'t', 'e', 's', 't', C1ST})
+	MissingMidMix871 = gofn.Concat([]byte{C1DCS, '>', 't', 'e', 's', 't'}, ST)
+	MissingMidMix872 = gofn.Concat([]byte{C1DCS, '|', 't', 'e', 's', 't'}, ST)
+	MissingMidMix873 = gofn.Concat([]byte{C1DCS, 't', 'e', 's', 't'}, ST)
 
-	MissingText7     = gofn.Concat(DCS7, []byte{'>', '|'}, ST7)
-	MissingText8     = []byte{DCS8, '>', '|', ST8}
-	MissingMixText78 = gofn.Concat(DCS7, []byte{'>', '|', ST8})
-	MissingMixText87 = gofn.Concat([]byte{DCS8, '>', '|'}, ST7)
+	MissingText7     = gofn.Concat(DCS, []byte{'>', '|'}, ST)
+	MissingText8     = []byte{C1DCS, '>', '|', C1ST}
+	MissingMixText78 = gofn.Concat(DCS, []byte{'>', '|', C1ST})
+	MissingMixText87 = gofn.Concat([]byte{C1DCS, '>', '|'}, ST)
 
-	MissingFullSuffix7    = gofn.Concat(DCS7, []byte{'>', '|', 't', 'e', 's', 't'})
-	MissingPartialSuffix7 = gofn.Concat(DCS7, []byte{'>', '|', 't', 'e', 's', 't', ST7[0]})
-	MissingSuffix8        = []byte{DCS8, '>', '|', 't', 'e', 's', 't'}
+	MissingFullSuffix7    = gofn.Concat(DCS, []byte{'>', '|', 't', 'e', 's', 't'})
+	MissingPartialSuffix7 = gofn.Concat(DCS, []byte{'>', '|', 't', 'e', 's', 't', ST[0]})
+	MissingSuffix8        = []byte{C1DCS, '>', '|', 't', 'e', 's', 't'}
 )
 
 // TODO: ESC mid seq
@@ -88,7 +88,7 @@ func TestXTVersionResponse(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ans, err := XTVersionResponse(tt.input)
+			ans, err := ParseXTVERSIONResponse(tt.input)
 			if tt.want != "" && ans != tt.want {
 				t.Errorf("got %s, want %s", ans, tt.want)
 			}
@@ -102,86 +102,86 @@ func TestXTVersionResponse(t *testing.T) {
 // XTGETTCAP
 // DCS 1 + r Pt ST
 var (
-	GBasic7    = gofn.Concat(DCS7, []byte{'1', '+', 'r'}, TN, []byte{'=', 't', 'e', 's', 't'}, ST7)
-	GBasic8    = gofn.Concat([]byte{DCS8, '1', '+', 'r'}, TN, []byte{'=', 't', 'e', 's', 't', ST8})
-	GBasicMix  = gofn.Concat(DCS7, []byte{'1', '+', 'r'}, TN, []byte{'=', 't', 'e', 's', 't', ST8})
-	GBasicMix2 = gofn.Concat([]byte{DCS8, '1', '+', 'r'}, TN, []byte{'=', 't', 'e', 's', 't'}, ST7)
+	GBasic7    = gofn.Concat(DCS, []byte{'1', '+', 'r'}, TN, []byte{'=', 't', 'e', 's', 't'}, ST)
+	GBasic8    = gofn.Concat([]byte{C1DCS, '1', '+', 'r'}, TN, []byte{'=', 't', 'e', 's', 't', C1ST})
+	GBasicMix  = gofn.Concat(DCS, []byte{'1', '+', 'r'}, TN, []byte{'=', 't', 'e', 's', 't', C1ST})
+	GBasicMix2 = gofn.Concat([]byte{C1DCS, '1', '+', 'r'}, TN, []byte{'=', 't', 'e', 's', 't'}, ST)
 
-	GIllegalBasic7    = gofn.Concat(DCS7, []byte{'0', '+', 'r'}, TN, []byte{'=', 't', 'e', 's', 't'}, ST7)
-	GIllegalBasic8    = gofn.Concat([]byte{DCS8, '0', '+', 'r'}, TN, []byte{'=', 't', 'e', 's', 't', ST8})
-	GIllegalBasicMix  = gofn.Concat(DCS7, []byte{'0', '+', 'r'}, TN, []byte{'=', 't', 'e', 's', 't', ST8})
-	GIllegalBasicMix2 = gofn.Concat([]byte{DCS8, '0', '+', 'r'}, TN, []byte{'=', 't', 'e', 's', 't'}, ST7)
+	GIllegalBasic7    = gofn.Concat(DCS, []byte{'0', '+', 'r'}, TN, []byte{'=', 't', 'e', 's', 't'}, ST)
+	GIllegalBasic8    = gofn.Concat([]byte{C1DCS, '0', '+', 'r'}, TN, []byte{'=', 't', 'e', 's', 't', C1ST})
+	GIllegalBasicMix  = gofn.Concat(DCS, []byte{'0', '+', 'r'}, TN, []byte{'=', 't', 'e', 's', 't', C1ST})
+	GIllegalBasicMix2 = gofn.Concat([]byte{C1DCS, '0', '+', 'r'}, TN, []byte{'=', 't', 'e', 's', 't'}, ST)
 
-	GMissingFullPrefix7    = gofn.Concat([]byte{'1', '+', 'r'}, TN, []byte{'=', 't', 'e', 's', 't'}, ST7)
-	GMissingPartialPrefix7 = gofn.Concat([]byte{DCS7[0], '1', '+', 'r'}, TN, []byte{'=', 't', 'e', 's', 't'}, ST7)
-	GMissingPrefix8        = gofn.Concat([]byte{'1', '+', 'r'}, TN, []byte{'=', 't', 'e', 's', 't', ST8})
+	GMissingFullPrefix7    = gofn.Concat([]byte{'1', '+', 'r'}, TN, []byte{'=', 't', 'e', 's', 't'}, ST)
+	GMissingPartialPrefix7 = gofn.Concat([]byte{DCS[0], '1', '+', 'r'}, TN, []byte{'=', 't', 'e', 's', 't'}, ST)
+	GMissingPrefix8        = gofn.Concat([]byte{'1', '+', 'r'}, TN, []byte{'=', 't', 'e', 's', 't', C1ST})
 
-	GIllegalMissingFullPrefix7    = gofn.Concat([]byte{'0', '+', 'r'}, TN, []byte{'=', 't', 'e', 's', 't'}, ST7)
-	GIllegalMissingPartialPrefix7 = gofn.Concat([]byte{DCS7[0], '0', '+', 'r'}, TN, []byte{'=', 't', 'e', 's', 't'}, ST7)
-	GIllegalMissingPrefix8        = gofn.Concat([]byte{'0', '+', 'r'}, TN, []byte{'=', 't', 'e', 's', 't', ST8})
+	GIllegalMissingFullPrefix7    = gofn.Concat([]byte{'0', '+', 'r'}, TN, []byte{'=', 't', 'e', 's', 't'}, ST)
+	GIllegalMissingPartialPrefix7 = gofn.Concat([]byte{DCS[0], '0', '+', 'r'}, TN, []byte{'=', 't', 'e', 's', 't'}, ST)
+	GIllegalMissingPrefix8        = gofn.Concat([]byte{'0', '+', 'r'}, TN, []byte{'=', 't', 'e', 's', 't', C1ST})
 
-	GMissingMid7Status   = gofn.Concat(DCS7, []byte{'+', 'r'}, TN, []byte{'=', 't', 'e', 's', 't'}, ST7)
-	GMissingMid71        = gofn.Concat(DCS7, []byte{'1', '+'}, TN, []byte{'=', 't', 'e', 's', 't'}, ST7)
-	GMissingMid72        = gofn.Concat(DCS7, []byte{'1', 'r'}, TN, []byte{'=', 't', 'e', 's', 't'}, ST7)
-	GMissingMid73        = gofn.Concat(DCS7, []byte{'1'}, TN, []byte{'=', 't', 'e', 's', 't'}, ST7)
-	GIllegalMissingMid71 = gofn.Concat(DCS7, []byte{'0', '+'}, TN, []byte{'=', 't', 'e', 's', 't'}, ST7)
-	GIllegalMissingMid72 = gofn.Concat(DCS7, []byte{'0', 'r'}, TN, []byte{'=', 't', 'e', 's', 't'}, ST7)
-	GIllegalMissingMid73 = gofn.Concat(DCS7, []byte{'0'}, TN, []byte{'=', 't', 'e', 's', 't'}, ST7)
-	GMissingMid8Status   = gofn.Concat([]byte{DCS8, '+', 'r'}, TN, []byte{'=', 't', 'e', 's', 't', ST8})
-	GMissingMid81        = gofn.Concat([]byte{DCS8, '1', '+'}, TN, []byte{'=', 't', 'e', 's', 't', ST8})
-	GMissingMid82        = gofn.Concat([]byte{DCS8, '1', 'r'}, TN, []byte{'=', 't', 'e', 's', 't', ST8})
-	GMissingMid83        = gofn.Concat([]byte{DCS8, '1'}, TN, []byte{'=', 't', 'e', 's', 't', ST8})
-	GIllegalMissingMid81 = gofn.Concat([]byte{DCS8, '0', '+'}, TN, []byte{'=', 't', 'e', 's', 't', ST8})
-	GIllegalMissingMid82 = gofn.Concat([]byte{DCS8, '0', 'r'}, TN, []byte{'=', 't', 'e', 's', 't', ST8})
-	GIllegalMissingMid83 = gofn.Concat([]byte{DCS8, '0'}, TN, []byte{'=', 't', 'e', 's', 't', ST8})
+	GMissingMid7Status   = gofn.Concat(DCS, []byte{'+', 'r'}, TN, []byte{'=', 't', 'e', 's', 't'}, ST)
+	GMissingMid71        = gofn.Concat(DCS, []byte{'1', '+'}, TN, []byte{'=', 't', 'e', 's', 't'}, ST)
+	GMissingMid72        = gofn.Concat(DCS, []byte{'1', 'r'}, TN, []byte{'=', 't', 'e', 's', 't'}, ST)
+	GMissingMid73        = gofn.Concat(DCS, []byte{'1'}, TN, []byte{'=', 't', 'e', 's', 't'}, ST)
+	GIllegalMissingMid71 = gofn.Concat(DCS, []byte{'0', '+'}, TN, []byte{'=', 't', 'e', 's', 't'}, ST)
+	GIllegalMissingMid72 = gofn.Concat(DCS, []byte{'0', 'r'}, TN, []byte{'=', 't', 'e', 's', 't'}, ST)
+	GIllegalMissingMid73 = gofn.Concat(DCS, []byte{'0'}, TN, []byte{'=', 't', 'e', 's', 't'}, ST)
+	GMissingMid8Status   = gofn.Concat([]byte{C1DCS, '+', 'r'}, TN, []byte{'=', 't', 'e', 's', 't', C1ST})
+	GMissingMid81        = gofn.Concat([]byte{C1DCS, '1', '+'}, TN, []byte{'=', 't', 'e', 's', 't', C1ST})
+	GMissingMid82        = gofn.Concat([]byte{C1DCS, '1', 'r'}, TN, []byte{'=', 't', 'e', 's', 't', C1ST})
+	GMissingMid83        = gofn.Concat([]byte{C1DCS, '1'}, TN, []byte{'=', 't', 'e', 's', 't', C1ST})
+	GIllegalMissingMid81 = gofn.Concat([]byte{C1DCS, '0', '+'}, TN, []byte{'=', 't', 'e', 's', 't', C1ST})
+	GIllegalMissingMid82 = gofn.Concat([]byte{C1DCS, '0', 'r'}, TN, []byte{'=', 't', 'e', 's', 't', C1ST})
+	GIllegalMissingMid83 = gofn.Concat([]byte{C1DCS, '0'}, TN, []byte{'=', 't', 'e', 's', 't', C1ST})
 
-	GMissingMidMix78Status   = gofn.Concat(DCS7, []byte{'+', 'r'}, TN, []byte{'=', 't', 'e', 's', 't', ST8})
-	GMissingMidMix781        = gofn.Concat(DCS7, []byte{'1', '+'}, TN, []byte{'=', 't', 'e', 's', 't', ST8})
-	GMissingMidMix782        = gofn.Concat(DCS7, []byte{'1', 'r'}, TN, []byte{'=', 't', 'e', 's', 't', ST8})
-	GMissingMidMix783        = gofn.Concat(DCS7, []byte{'1'}, TN, []byte{'=', 't', 'e', 's', 't', ST8})
-	GIllegalMissingMidMix781 = gofn.Concat(DCS7, []byte{'0', '+'}, TN, []byte{'=', 't', 'e', 's', 't', ST8})
-	GIllegalMissingMidMix782 = gofn.Concat(DCS7, []byte{'0', 'r'}, TN, []byte{'=', 't', 'e', 's', 't', ST8})
-	GIllegalMissingMidMix783 = gofn.Concat(DCS7, []byte{'0'}, TN, []byte{'=', 't', 'e', 's', 't', ST8})
-	GMissingMidMix87Status   = gofn.Concat([]byte{DCS8, '+', 'r'}, TN, []byte{'=', 't', 'e', 's', 't'}, ST7)
-	GMissingMidMix871        = gofn.Concat([]byte{DCS8, '1', '+'}, TN, []byte{'=', 't', 'e', 's', 't'}, ST7)
-	GMissingMidMix872        = gofn.Concat([]byte{DCS8, '1', 'r'}, TN, []byte{'=', 't', 'e', 's', 't'}, ST7)
-	GMissingMidMix873        = gofn.Concat([]byte{DCS8, '1'}, TN, []byte{'=', 't', 'e', 's', 't'}, ST7)
-	GIllegalMissingMidMix871 = gofn.Concat([]byte{DCS8, '0', '+'}, TN, []byte{'=', 't', 'e', 's', 't'}, ST7)
-	GIllegalMissingMidMix872 = gofn.Concat([]byte{DCS8, '0', 'r'}, TN, []byte{'=', 't', 'e', 's', 't'}, ST7)
-	GIllegalMissingMidMix873 = gofn.Concat([]byte{DCS8, '0'}, TN, []byte{'=', 't', 'e', 's', 't'}, ST7)
+	GMissingMidMix78Status   = gofn.Concat(DCS, []byte{'+', 'r'}, TN, []byte{'=', 't', 'e', 's', 't', C1ST})
+	GMissingMidMix781        = gofn.Concat(DCS, []byte{'1', '+'}, TN, []byte{'=', 't', 'e', 's', 't', C1ST})
+	GMissingMidMix782        = gofn.Concat(DCS, []byte{'1', 'r'}, TN, []byte{'=', 't', 'e', 's', 't', C1ST})
+	GMissingMidMix783        = gofn.Concat(DCS, []byte{'1'}, TN, []byte{'=', 't', 'e', 's', 't', C1ST})
+	GIllegalMissingMidMix781 = gofn.Concat(DCS, []byte{'0', '+'}, TN, []byte{'=', 't', 'e', 's', 't', C1ST})
+	GIllegalMissingMidMix782 = gofn.Concat(DCS, []byte{'0', 'r'}, TN, []byte{'=', 't', 'e', 's', 't', C1ST})
+	GIllegalMissingMidMix783 = gofn.Concat(DCS, []byte{'0'}, TN, []byte{'=', 't', 'e', 's', 't', C1ST})
+	GMissingMidMix87Status   = gofn.Concat([]byte{C1DCS, '+', 'r'}, TN, []byte{'=', 't', 'e', 's', 't'}, ST)
+	GMissingMidMix871        = gofn.Concat([]byte{C1DCS, '1', '+'}, TN, []byte{'=', 't', 'e', 's', 't'}, ST)
+	GMissingMidMix872        = gofn.Concat([]byte{C1DCS, '1', 'r'}, TN, []byte{'=', 't', 'e', 's', 't'}, ST)
+	GMissingMidMix873        = gofn.Concat([]byte{C1DCS, '1'}, TN, []byte{'=', 't', 'e', 's', 't'}, ST)
+	GIllegalMissingMidMix871 = gofn.Concat([]byte{C1DCS, '0', '+'}, TN, []byte{'=', 't', 'e', 's', 't'}, ST)
+	GIllegalMissingMidMix872 = gofn.Concat([]byte{C1DCS, '0', 'r'}, TN, []byte{'=', 't', 'e', 's', 't'}, ST)
+	GIllegalMissingMidMix873 = gofn.Concat([]byte{C1DCS, '0'}, TN, []byte{'=', 't', 'e', 's', 't'}, ST)
 
-	GMissingText7            = gofn.Concat(DCS7, []byte{'1', '+', 'r'}, TN, ST7)
-	GMissingText8            = gofn.Concat([]byte{DCS8, '1', '+', 'r'}, TN, []byte{ST8})
-	GMissingMixText78        = gofn.Concat(DCS7, []byte{'1', '+', 'r'}, TN, []byte{ST8})
-	GMissingMixText87        = gofn.Concat([]byte{DCS8, '1', '+', 'r'}, TN, ST7)
-	GIllegalMissingText7     = gofn.Concat(DCS7, []byte{'0', '+', 'r'}, TN, ST7)
-	GIllegalMissingText8     = gofn.Concat([]byte{DCS8, '0', '+', 'r'}, TN, []byte{ST8})
-	GIllegalMissingMixText78 = gofn.Concat(DCS7, []byte{'0', '+', 'r'}, TN, []byte{ST8})
-	GIllegalMissingMixText87 = gofn.Concat([]byte{DCS8, '0', '+', 'r'}, TN, ST7)
+	GMissingText7            = gofn.Concat(DCS, []byte{'1', '+', 'r'}, TN, ST)
+	GMissingText8            = gofn.Concat([]byte{C1DCS, '1', '+', 'r'}, TN, []byte{C1ST})
+	GMissingMixText78        = gofn.Concat(DCS, []byte{'1', '+', 'r'}, TN, []byte{C1ST})
+	GMissingMixText87        = gofn.Concat([]byte{C1DCS, '1', '+', 'r'}, TN, ST)
+	GIllegalMissingText7     = gofn.Concat(DCS, []byte{'0', '+', 'r'}, TN, ST)
+	GIllegalMissingText8     = gofn.Concat([]byte{C1DCS, '0', '+', 'r'}, TN, []byte{C1ST})
+	GIllegalMissingMixText78 = gofn.Concat(DCS, []byte{'0', '+', 'r'}, TN, []byte{C1ST})
+	GIllegalMissingMixText87 = gofn.Concat([]byte{C1DCS, '0', '+', 'r'}, TN, ST)
 
-	GMissingFullSuffix7           = gofn.Concat(DCS7, []byte{'1', '+', 'r'}, TN, []byte{'=', 't', 'e', 's', 't'})
-	GMissingPartialSuffix7        = gofn.Concat(DCS7, []byte{'1', '+', 'r'}, TN, []byte{'=', 't', 'e', 's', 't', ST7[0]})
-	GMissingSuffix8               = gofn.Concat([]byte{DCS8, '1', '+', 'r'}, TN, []byte{'=', 't', 'e', 's', 't'})
-	GIllegalMissingFullSuffix7    = gofn.Concat(DCS7, []byte{'0', '+', 'r'}, TN, []byte{'=', 't', 'e', 's', 't'})
-	GIllegalMissingPartialSuffix7 = gofn.Concat(DCS7, []byte{'0', '+', 'r'}, TN, []byte{'=', 't', 'e', 's', 't', ST7[0]})
-	GIllegalMissingSuffix8        = gofn.Concat([]byte{DCS8, '0', '+', 'r'}, TN, []byte{'=', 't', 'e', 's', 't'})
+	GMissingFullSuffix7           = gofn.Concat(DCS, []byte{'1', '+', 'r'}, TN, []byte{'=', 't', 'e', 's', 't'})
+	GMissingPartialSuffix7        = gofn.Concat(DCS, []byte{'1', '+', 'r'}, TN, []byte{'=', 't', 'e', 's', 't', ST[0]})
+	GMissingSuffix8               = gofn.Concat([]byte{C1DCS, '1', '+', 'r'}, TN, []byte{'=', 't', 'e', 's', 't'})
+	GIllegalMissingFullSuffix7    = gofn.Concat(DCS, []byte{'0', '+', 'r'}, TN, []byte{'=', 't', 'e', 's', 't'})
+	GIllegalMissingPartialSuffix7 = gofn.Concat(DCS, []byte{'0', '+', 'r'}, TN, []byte{'=', 't', 'e', 's', 't', ST[0]})
+	GIllegalMissingSuffix8        = gofn.Concat([]byte{C1DCS, '0', '+', 'r'}, TN, []byte{'=', 't', 'e', 's', 't'})
 
-	GPartialTn7               = gofn.Concat(DCS7, []byte{'1', '+', 'r'}, TN[:2], []byte{'=', 't', 'e', 's', 't'}, ST7)
-	GPartialTn8               = gofn.Concat([]byte{DCS8, '1', '+', 'r'}, TN[:2], []byte{'=', 't', 'e', 's', 't', ST8})
-	GPartialTnMix             = gofn.Concat(DCS7, []byte{'1', '+', 'r'}, TN[:2], []byte{'=', 't', 'e', 's', 't', ST8})
-	GPartialTnMix2            = gofn.Concat([]byte{DCS8, '1', '+', 'r'}, TN[:2], []byte{'=', 't', 'e', 's', 't'}, ST7)
-	GMissingEquals7           = gofn.Concat(DCS7, []byte{'1', '+', 'r'}, TN, []byte{'t', 'e', 's', 't'}, ST7)
-	GMissingEquals8           = gofn.Concat([]byte{DCS8, '1', '+', 'r'}, TN, []byte{'t', 'e', 's', 't', ST8})
-	GMissingEqualsMix         = gofn.Concat(DCS7, []byte{'1', '+', 'r'}, TN, []byte{'t', 'e', 's', 't', ST8})
-	GMissingEqualsMix2        = gofn.Concat([]byte{DCS8, '1', '+', 'r'}, TN, []byte{'t', 'e', 's', 't'}, ST7)
-	GIllegalPartialTn7        = gofn.Concat(DCS7, []byte{'0', '+', 'r'}, TN[:2], []byte{'=', 't', 'e', 's', 't'}, ST7)
-	GIllegalPartialTn8        = gofn.Concat([]byte{DCS8, '0', '+', 'r'}, TN[:2], []byte{'=', 't', 'e', 's', 't', ST8})
-	GIllegalPartialTnMix      = gofn.Concat(DCS7, []byte{'0', '+', 'r'}, TN[:2], []byte{'=', 't', 'e', 's', 't', ST8})
-	GIllegalPartialTnMix2     = gofn.Concat([]byte{DCS8, '0', '+', 'r'}, TN[:2], []byte{'=', 't', 'e', 's', 't'}, ST7)
-	GIllegalMissingEquals7    = gofn.Concat(DCS7, []byte{'0', '+', 'r'}, TN, []byte{'t', 'e', 's', 't'}, ST7)
-	GIllegalMissingEquals8    = gofn.Concat([]byte{DCS8, '0', '+', 'r'}, TN, []byte{'t', 'e', 's', 't', ST8})
-	GIllegalMissingEqualsMix  = gofn.Concat(DCS7, []byte{'0', '+', 'r'}, TN, []byte{'t', 'e', 's', 't', ST8})
-	GIllegalMissingEqualsMix2 = gofn.Concat([]byte{DCS8, '0', '+', 'r'}, TN, []byte{'t', 'e', 's', 't'}, ST7)
+	GPartialTn7               = gofn.Concat(DCS, []byte{'1', '+', 'r'}, TN[:2], []byte{'=', 't', 'e', 's', 't'}, ST)
+	GPartialTn8               = gofn.Concat([]byte{C1DCS, '1', '+', 'r'}, TN[:2], []byte{'=', 't', 'e', 's', 't', C1ST})
+	GPartialTnMix             = gofn.Concat(DCS, []byte{'1', '+', 'r'}, TN[:2], []byte{'=', 't', 'e', 's', 't', C1ST})
+	GPartialTnMix2            = gofn.Concat([]byte{C1DCS, '1', '+', 'r'}, TN[:2], []byte{'=', 't', 'e', 's', 't'}, ST)
+	GMissingEquals7           = gofn.Concat(DCS, []byte{'1', '+', 'r'}, TN, []byte{'t', 'e', 's', 't'}, ST)
+	GMissingEquals8           = gofn.Concat([]byte{C1DCS, '1', '+', 'r'}, TN, []byte{'t', 'e', 's', 't', C1ST})
+	GMissingEqualsMix         = gofn.Concat(DCS, []byte{'1', '+', 'r'}, TN, []byte{'t', 'e', 's', 't', C1ST})
+	GMissingEqualsMix2        = gofn.Concat([]byte{C1DCS, '1', '+', 'r'}, TN, []byte{'t', 'e', 's', 't'}, ST)
+	GIllegalPartialTn7        = gofn.Concat(DCS, []byte{'0', '+', 'r'}, TN[:2], []byte{'=', 't', 'e', 's', 't'}, ST)
+	GIllegalPartialTn8        = gofn.Concat([]byte{C1DCS, '0', '+', 'r'}, TN[:2], []byte{'=', 't', 'e', 's', 't', C1ST})
+	GIllegalPartialTnMix      = gofn.Concat(DCS, []byte{'0', '+', 'r'}, TN[:2], []byte{'=', 't', 'e', 's', 't', C1ST})
+	GIllegalPartialTnMix2     = gofn.Concat([]byte{C1DCS, '0', '+', 'r'}, TN[:2], []byte{'=', 't', 'e', 's', 't'}, ST)
+	GIllegalMissingEquals7    = gofn.Concat(DCS, []byte{'0', '+', 'r'}, TN, []byte{'t', 'e', 's', 't'}, ST)
+	GIllegalMissingEquals8    = gofn.Concat([]byte{C1DCS, '0', '+', 'r'}, TN, []byte{'t', 'e', 's', 't', C1ST})
+	GIllegalMissingEqualsMix  = gofn.Concat(DCS, []byte{'0', '+', 'r'}, TN, []byte{'t', 'e', 's', 't', C1ST})
+	GIllegalMissingEqualsMix2 = gofn.Concat([]byte{C1DCS, '0', '+', 'r'}, TN, []byte{'t', 'e', 's', 't'}, ST)
 )
 
 func TestXGetTcapResponse(t *testing.T) {
@@ -276,7 +276,7 @@ func TestXGetTcapResponse(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ans, err := XTGetTcapResponse(tt.input)
+			ans, err := ParseXTGETTCAPResponse(tt.input)
 			if (tt.want != "" || (tt.want == "" && tt.wantErr == "")) && ans != tt.want {
 				t.Errorf("got \"%s\", want \"%s\"", ans, tt.want)
 			}
