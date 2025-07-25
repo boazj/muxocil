@@ -321,47 +321,57 @@ func Probe() (*ProbeData, error) {
 
 	buf, err := SendDA3(os.Stdout, reader)
 	if err != nil {
-		return nil, err // TODO: wrap
+		return nil, err
 	}
 	da3, err := ParseDA3Response(buf)
 	if err != nil {
-		return nil, err // TODO: wrap
+		if perr := IsProbeErrorOrUnknown(err, TDA); !perr.IsEmptyResponse() {
+			return nil, perr
+		}
 	}
 
 	buf, err = SendDA2(os.Stdout, reader)
 	if err != nil {
-		return nil, err // TODO: wrap
+		return nil, err
 	}
 	da2pp, da2pv, da2pc, err := ParseDA2Response(buf)
 	if err != nil {
-		return nil, err // TODO: wrap
+		if perr := IsProbeErrorOrUnknown(err, TDA); !perr.IsEmptyResponse() {
+			return nil, perr
+		}
 	}
 
 	buf, err = SendXTVERSION(os.Stdout, reader)
 	if err != nil {
-		return nil, err // TODO: wrap
+		return nil, err
 	}
 	xtversion, err := ParseXTVERSIONResponse(buf)
 	if err != nil {
-		return nil, err // TODO: wrap
+		if perr := IsProbeErrorOrUnknown(err, TDA); !perr.IsEmptyResponse() {
+			return nil, perr
+		}
 	}
 
 	buf, err = SendXTGETTCAP(os.Stdout, reader)
 	if err != nil {
-		return nil, err // TODO: wrap
+		return nil, err
 	}
 	xtgettcap, err := ParseXTGETTCAPResponse(buf)
 	if err != nil {
-		return nil, err // TODO: wrap
+		if perr := IsProbeErrorOrUnknown(err, TDA); !perr.IsEmptyResponse() {
+			return nil, perr
+		}
 	}
 
 	buf, err = SendDA1(os.Stdout, reader)
 	if err != nil {
-		return nil, err // TODO: wrap
+		return nil, err
 	}
 	da1pp, da1ps, err := ParseDA1Response(buf)
 	if err != nil {
-		return nil, err // TODO: wrap
+		if perr := IsProbeErrorOrUnknown(err, TDA); !perr.IsEmptyResponse() {
+			return nil, perr
+		}
 	}
 
 	return &ProbeData{
