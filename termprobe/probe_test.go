@@ -34,6 +34,11 @@ var (
 	MissingMidMix872 = gofn.Concat([]byte{C1DCS, '|', 't', 'e', 's', 't'}, ST)
 	MissingMidMix873 = gofn.Concat([]byte{C1DCS, 't', 'e', 's', 't'}, ST)
 
+	PaddedMid7    = gofn.Concat(DCS, []byte{'+', '+', '>', '|', 't', 'e', 's', 't'}, ST)
+	PaddedMid8    = []byte{C1DCS, '+', '+', '>', '|', 't', 'e', 's', 't', C1ST}
+	PaddedMidMix  = gofn.Concat(DCS, []byte{'+', '>', '|', 't', 'e', 's', 't', C1ST})
+	PaddedMidMix2 = gofn.Concat([]byte{C1DCS, '+', '>', '|', 't', 'e', 's', 't'}, ST)
+
 	MissingText7     = gofn.Concat(DCS, []byte{'>', '|'}, ST)
 	MissingText8     = []byte{C1DCS, '>', '|', C1ST}
 	MissingMixText78 = gofn.Concat(DCS, []byte{'>', '|', C1ST})
@@ -77,6 +82,11 @@ func TestXTVersionResponse(t *testing.T) {
 		{"MissingMidMix 871", MissingMidMix871, "", "XTVERSION response sequence DCS prefix missing"},
 		{"MissingMidMix 872", MissingMidMix872, "", "XTVERSION response sequence DCS prefix missing"},
 		{"MissingMidMix 873", MissingMidMix873, "", "XTVERSION response sequence DCS prefix missing"},
+
+		{"PaddedMid 7", PaddedMid7, "", "XTVERSION response sequence DCS prefix missing"},
+		{"PaddedMid 8", PaddedMid8, "", "XTVERSION response sequence DCS prefix missing"},
+		{"PaddedMidMix 1", PaddedMidMix, "", "XTVERSION response sequence DCS prefix missing"},
+		{"PaddedMidMix 2", PaddedMidMix2, "", "XTVERSION response sequence DCS prefix missing"},
 
 		{"MissingFullPrefix 7", MissingFullPrefix7, "", "XTVERSION response sequence DCS prefix missing"},
 		{"MissingPartialPrefix 7", MissingPartialPrefix7, "", "XTVERSION response sequence DCS prefix missing"},
@@ -182,6 +192,11 @@ var (
 	GIllegalMissingEquals8    = gofn.Concat([]byte{C1DCS, '0', '+', 'r'}, TN, []byte{'t', 'e', 's', 't', C1ST})
 	GIllegalMissingEqualsMix  = gofn.Concat(DCS, []byte{'0', '+', 'r'}, TN, []byte{'t', 'e', 's', 't', C1ST})
 	GIllegalMissingEqualsMix2 = gofn.Concat([]byte{C1DCS, '0', '+', 'r'}, TN, []byte{'t', 'e', 's', 't'}, ST)
+
+	GPadding7    = gofn.Concat(DCS, []byte{'1', 'X', 'X', '+', 'r'}, TN, []byte{'=', 't', 'e', 's', 't'}, ST)
+	GPadding8    = gofn.Concat([]byte{C1DCS, '1', 'X', 'X', '+', 'r'}, TN, []byte{'=', 't', 'e', 's', 't', C1ST})
+	GPaddingMix  = gofn.Concat(DCS, []byte{'1', 'X', '+', 'r'}, TN, []byte{'=', 't', 'e', 's', 't', C1ST})
+	GPaddingMix2 = gofn.Concat([]byte{C1DCS, '1', 'X', '+', 'r'}, TN, []byte{'=', 't', 'e', 's', 't'}, ST)
 )
 
 func TestXGetTcapResponse(t *testing.T) {
@@ -240,6 +255,11 @@ func TestXGetTcapResponse(t *testing.T) {
 		{"IllegalMissingMidMix871", GIllegalMissingMidMix871, "", "XTGETTCAP illegal request"},
 		{"IllegalMissingMidMix872", GIllegalMissingMidMix872, "", "XTGETTCAP illegal request"},
 		{"IllegalMissingMidMix873", GIllegalMissingMidMix873, "", "XTGETTCAP illegal request"},
+
+		{"GPadding7", GPadding7, "", "XTGETTCAP response sequence DCS prefix missing"},
+		{"GPadding8", GPadding8, "", "XTGETTCAP response sequence DCS prefix missing"},
+		{"GPaddingMix", GPaddingMix, "", "XTGETTCAP response sequence DCS prefix missing"},
+		{"GPaddingMix2", GPaddingMix2, "", "XTGETTCAP response sequence DCS prefix missing"},
 
 		{"MissingText7", GMissingText7, "", ""},
 		{"MissingText8", GMissingText8, "", ""},

@@ -9,6 +9,7 @@ package termprobe
 import (
 	"fmt"
 	"os"
+	"reflect"
 	"runtime"
 
 	"github.com/tiendc/gofn"
@@ -39,11 +40,17 @@ func ParseXTVERSIONResponse(b []byte) (string, error) {
 				control = true
 			}
 		} else if !prefix {
+			if c == '>' {
+				prev = c
+				continue
+			}
 			if c == '|' && prev == '>' {
 				prefix = true
 			} else if gofn.MapGet(badEsc, c, false) {
 				// unexpected escape control
 				return "", fmt.Errorf("XTVERSION response sequence contains unexpected escape code")
+			} else {
+				return "", fmt.Errorf("XTVERSION response sequence DCS prefix missing")
 			}
 		} else if !termination {
 			if c == C1ST || (prev == ST[0] && c == ST[1]) {
@@ -100,11 +107,17 @@ func ParseXTGETTCAPResponse(b []byte) (string, error) {
 				break
 			}
 		} else if !prefix {
+			if c == '+' {
+				prev = c
+				continue
+			}
 			if c == 'r' && prev == '+' {
 				prefix = true
 			} else if gofn.MapGet(badEsc, c, false) {
 				// unexpected escape control
 				return "", fmt.Errorf("XTGETTCAP response sequence contains unexpected escape code")
+			} else {
+				return "", fmt.Errorf("XTGETTCAP response sequence DCS prefix missing")
 			}
 		} else if !termination {
 			if c == C1ST || (prev == ST[0] && c == ST[1]) {
@@ -178,4 +191,20 @@ func Probe() (*ProbeData, error) {
 		EnvTerm:        term,
 		EnvTermProgram: termProgram,
 	}, nil
+}
+
+func consumeToSequence(b []byte, seq1 []byte, seq2 []byte) []byte {
+	i := 0
+	for ; i < len(b); i++ {
+		if b[i] == seq1[0] {
+			if reflect.DeepEqual(b[i:], seq1) {
+				return b[i+len(seq1)-1:]
+			}
+		} else if b[i] == seq2[0] {
+			if reflect.DeepEqual(b[i:], seq2) {
+				return b[i+len(seq2)-1:]
+			}
+		}
+	}
+	return []byte{}
 }
