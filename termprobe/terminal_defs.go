@@ -6,7 +6,7 @@ import (
 )
 
 var (
-	Unknown = TerminalMD{"unknown", KindUnknown, []TermInfoReports{}, []ProbingStrategy{}, nil}
+	Unknown = TerminalMD{"unknown", KindUnknown, []TermInfoReports{}, []ProbeActions{}, nil}
 
 	// TDA response: "7E565445"
 	// XTVERSION prefix: "VTE("
@@ -15,7 +15,7 @@ var (
 		"vte",
 		Xterm,
 		[]TermInfoReports{ReportsXtermVersion, ReportsSDA},
-		[]ProbingStrategy{TDA, XtVersion},
+		[]ProbeActions{TDA, XtVersion},
 		probeGnomeVTE,
 	}
 
@@ -27,7 +27,7 @@ var (
 		"konsole",
 		Xterm,
 		[]TermInfoReports{ReportsXtermVersion},
-		[]ProbingStrategy{TDA, XtVersion},
+		[]ProbeActions{TDA, XtVersion},
 		probeKdeKonsole,
 	}
 
@@ -38,7 +38,7 @@ var (
 		"terminology",
 		Xterm,
 		[]TermInfoReports{ReportsXtermVersion},
-		[]ProbingStrategy{TDA, XtVersion},
+		[]ProbeActions{TDA, XtVersion},
 		probeTerminology,
 	}
 
@@ -49,7 +49,7 @@ var (
 		"foot",
 		Wayland,
 		[]TermInfoReports{ReportsXtermVersion},
-		[]ProbingStrategy{TDA, XtVersion},
+		[]ProbeActions{TDA, XtVersion},
 		probeFoot,
 	}
 
@@ -60,7 +60,7 @@ var (
 		"mlterm",
 		Xterm,
 		[]TermInfoReports{ReportsXtermVersion},
-		[]ProbingStrategy{XtGetTcap, XtVersion},
+		[]ProbeActions{XtGetTcap, XtVersion},
 		probeMlterm,
 	}
 
@@ -71,7 +71,7 @@ var (
 		"kitty",
 		OpenGl,
 		[]TermInfoReports{ReportsXtermVersion, ReportsSDA},
-		[]ProbingStrategy{XtGetTcap, XtVersion},
+		[]ProbeActions{XtGetTcap, XtVersion},
 		probeKitty,
 	}
 
@@ -82,7 +82,7 @@ var (
 		"ghostty",
 		Miscellaneous,
 		[]TermInfoReports{ReportsXtermVersion},
-		[]ProbingStrategy{XtVersion, XtGetTcap},
+		[]ProbeActions{XtVersion, XtGetTcap},
 		probeGhostty,
 	}
 
@@ -92,7 +92,7 @@ var (
 		"alacritty",
 		OpenGl,
 		[]TermInfoReports{ReportsSDA},
-		[]ProbingStrategy{SDA, EnvTerm},
+		[]ProbeActions{SDA, EnvTerm},
 		probeAlacritty,
 	}
 
@@ -103,7 +103,7 @@ var (
 		"gnuscreen",
 		UNIX,
 		[]TermInfoReports{},
-		[]ProbingStrategy{SDA},
+		[]ProbeActions{SDA},
 		probeGnuScreen,
 	}
 
@@ -112,7 +112,7 @@ var (
 		"xterm",
 		Xterm,
 		[]TermInfoReports{ReportsXtermVersion},
-		[]ProbingStrategy{XtVersion},
+		[]ProbeActions{XtVersion},
 		probeXterm,
 	}
 
@@ -121,7 +121,7 @@ var (
 		"wezterm",
 		Miscellaneous,
 		[]TermInfoReports{ReportsXtermVersion, ReportsSDA},
-		[]ProbingStrategy{XtVersion},
+		[]ProbeActions{XtVersion},
 		probeWezterm,
 	}
 
@@ -130,7 +130,7 @@ var (
 		"contour",
 		Miscellaneous,
 		[]TermInfoReports{ReportsXtermVersion},
-		[]ProbingStrategy{XtVersion},
+		[]ProbeActions{XtVersion},
 		probeContour,
 	}
 
@@ -139,7 +139,7 @@ var (
 		"tmux",
 		UNIX,
 		[]TermInfoReports{ReportsXtermVersion},
-		[]ProbingStrategy{XtVersion},
+		[]ProbeActions{XtVersion},
 		probeTmux,
 	}
 
@@ -149,7 +149,7 @@ var (
 		"iterm2",
 		Apple,
 		[]TermInfoReports{ReportsXtermVersion, ReportsSDA},
-		[]ProbingStrategy{XtVersion},
+		[]ProbeActions{XtVersion},
 		probeIterm2,
 	}
 
@@ -159,7 +159,7 @@ var (
 		"mintty",
 		Microsoft,
 		[]TermInfoReports{ReportsXtermVersion},
-		[]ProbingStrategy{XtVersion, OS},
+		[]ProbeActions{XtVersion, OS},
 		probeMintty,
 	}
 
@@ -170,7 +170,7 @@ var (
 		"terminal",
 		KindUnknown,
 		[]TermInfoReports{},
-		[]ProbingStrategy{XtVersion, OS},
+		[]ProbeActions{XtVersion, OS},
 		probeZellij,
 	}
 
@@ -178,7 +178,7 @@ var (
 		"rxvt",
 		Xterm,
 		[]TermInfoReports{},
-		[]ProbingStrategy{EnvTerm},
+		[]ProbeActions{EnvTerm},
 		probeRxvt,
 	}
 
@@ -187,7 +187,7 @@ var (
 		"terminal.app",
 		Apple,
 		[]TermInfoReports{},
-		[]ProbingStrategy{EnvTermProgram, OS},
+		[]ProbeActions{EnvTermProgram, OS},
 		probeTerminalApp,
 	}
 
@@ -216,7 +216,7 @@ var (
 )
 
 func probeGnomeVTE(probe ProbeData) (bool, error) {
-	if probe.TDA == "7E565445" {
+	if probe.DA3 == "7E565445" {
 		if !strings.HasPrefix(probe.XtermVersion, "VTE(") {
 			// TODO: log old VTE, but not error, Support for version added in 2024
 		}
@@ -226,7 +226,7 @@ func probeGnomeVTE(probe ProbeData) (bool, error) {
 }
 
 func probeKdeKonsole(probe ProbeData) (bool, error) {
-	if probe.TDA == "7E484445" {
+	if probe.DA3 == "7E484445" {
 		if !strings.HasPrefix(probe.XtermVersion, "Konsole ") {
 			// TODO: log old konsole, but not error, Support for version added in 2023
 		}
@@ -236,11 +236,11 @@ func probeKdeKonsole(probe ProbeData) (bool, error) {
 }
 
 func probeTerminology(probe ProbeData) (bool, error) {
-	return probe.TDA == "7E7E5459" || strings.HasPrefix(probe.XtermVersion, "terminology "), nil
+	return probe.DA3 == "7E7E5459" || strings.HasPrefix(probe.XtermVersion, "terminology "), nil
 }
 
 func probeFoot(probe ProbeData) (bool, error) {
-	return probe.TDA == "464F4F54" || strings.HasPrefix(probe.XtermVersion, "foot("), nil
+	return probe.DA3 == "464F4F54" || strings.HasPrefix(probe.XtermVersion, "foot("), nil
 }
 
 func probeMlterm(probe ProbeData) (bool, error) {
