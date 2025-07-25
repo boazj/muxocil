@@ -34,6 +34,9 @@ inffer_provider_from_env = true
 # When `launch_multiplexer_app` is set to false, muxocil will be defensive and will fail-fast
 launch_multiplexer_app = false
 
+[provider.wezterm]
+wsl_wezterm_executable = ""
+
 [layout]
 [layout.panes]
 # Render pane titles where defined (pane's title attribute) 

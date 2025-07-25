@@ -20,6 +20,7 @@ const (
 	ProviderValidateProvider          = "providers.validate_provider_from_env"
 	ProviderInfferProvider            = "providers.inffer_provider_from_env"
 	ProviderLaunchMux                 = "providers.launch_multiplexer_app"
+	ProviderWeztermWSLExecutable      = "providers.wezterm.wsl_wezterm_executable"
 	LayoutPaneShowTitle               = "layout.panes.show_pane_title"
 	LayoutPaneShowTitleWhitespace     = "layout.panes.pane_title_replace_whitespace"
 	LayoutPaneShowTitleWhitespaceChar = "layout.panes.pane_title_replace_whitespace_char"
@@ -61,6 +62,7 @@ type Config struct {
 	ValidateProviderFromEnv        bool
 	InfferProviderFromEnv          bool
 	LaunchMultiplexerApp           bool
+	ProviderWeztermWslExecutable   string
 	ShowPaneTitle                  bool
 	PaneTitleReplaceWhitespace     bool
 	PaneTitleReplaceWhitespaceChar string
@@ -89,6 +91,7 @@ func GetConfig() *Config {
 	viper.SetDefault(ProviderValidateProvider, true)
 	viper.SetDefault(ProviderInfferProvider, true)
 	viper.SetDefault(ProviderLaunchMux, false)
+	viper.SetDefault(ProviderWeztermWSLExecutable, "")
 	viper.SetDefault(LayoutPaneShowTitle, true)
 	viper.SetDefault(LayoutPaneShowTitleWhitespace, false)
 	viper.SetDefault(LayoutPaneShowTitleWhitespaceChar, "_")
@@ -118,6 +121,7 @@ func GetConfig() *Config {
 	conf.ValidateProviderFromEnv = viper.GetBool(ProviderValidateProvider)
 	conf.InfferProviderFromEnv = viper.GetBool(ProviderInfferProvider)
 	conf.LaunchMultiplexerApp = viper.GetBool(ProviderLaunchMux)
+	conf.ProviderWeztermWslExecutable = viper.GetString(ProviderWeztermWSLExecutable)
 	conf.ShowPaneTitle = viper.GetBool(LayoutPaneShowTitle)
 	conf.PaneTitleReplaceWhitespace = viper.GetBool(LayoutPaneShowTitleWhitespace)
 	conf.PaneTitleReplaceWhitespaceChar = viper.GetString(LayoutPaneShowTitleWhitespaceChar)
