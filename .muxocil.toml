@@ -35,7 +35,9 @@ inffer_provider_from_env = true
 launch_multiplexer_app = false
 
 [provider.wezterm]
-wsl_wezterm_executable = ""
+# In the fun case of using WezTerm's WSLDomains feature (i.e. running WezTerm in Windows and connecting it directly
+# into a WSL environment), access to the actual executable is needed to invoke mux commands
+wsl_wezterm_executable = "/mnt/c/Program Files/WezTerm/wezterm.exe"
 
 [layout]
 [layout.panes]
