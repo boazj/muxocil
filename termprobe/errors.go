@@ -1,6 +1,7 @@
 package termprobe
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/tiendc/gofn"
@@ -9,7 +10,8 @@ import (
 type ErrorCode int
 
 const (
-	EmptyResponse ErrorCode = iota
+	UnknownError ErrorCode = iota
+	EmptyResponse
 	SendSequenceFailed
 	ReadResponseFailed
 	ResponseStatusBadRequest
@@ -46,6 +48,10 @@ func (e *ProbeError) Unwrap() error {
 	return e.Err
 }
 
+func (e *ProbeError) IsUnknownError() bool {
+	return e.Code == UnknownError
+}
+
 func (e *ProbeError) IsCommunicationError() bool {
 	return gofn.Contain(communicationError, e.Code)
 }
@@ -60,6 +66,32 @@ func (e *ProbeError) IsBadRequest() bool {
 
 func (e *ProbeError) IsBadResponse() bool {
 	return gofn.Contain(badResponseError, e.Code)
+}
+
+func IsProbeErrorOrUnknown(err error, action ...ProbeActions) *ProbeError {
+	if err == nil {
+		return &ProbeError{
+			Action:  None,
+			Code:    UnknownError,
+			Message: "nil error",
+			Err:     nil,
+		}
+	}
+	eAction := None
+	if len(action) == 1 {
+		eAction = action[0]
+	}
+	var perr *ProbeError
+	if errors.As(err, &perr) {
+		return perr
+	} else {
+		return &ProbeError{
+			Action:  eAction,
+			Code:    UnknownError,
+			Message: "unknown error",
+			Err:     err,
+		}
+	}
 }
 
 func EmptyResponseError(action ProbeActions) error {
