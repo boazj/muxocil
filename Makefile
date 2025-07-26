@@ -3,7 +3,8 @@ EXTERNAL_VARS := $(.VARIABLES)
 # Variables
 BINARY_NAME = muxocil
 MAIN_FILE = main.go
-BUILD_DIR = bin
+BUILD_DIR = dist
+RELEASE_DIR = release
 VERSION ?= $(shell git describe --tags --always --dirty 2>/dev/null || echo "dev")
 COMMIT_HASH = $(shell git rev-parse --short HEAD 2>/dev/null || echo "unknown")
 BUILD_TIME = $(shell date -u '+%Y-%m-%d_%H:%M:%S')
@@ -17,7 +18,6 @@ GOCLEAN = $(GOCMD) clean
 GOTEST = $(GOCMD) test
 GOGET = $(GOCMD) get
 GOMOD = $(GOCMD) mod
-# BINARY_UNIX=$(BINARY_NAME)_unix
 
 # Dependencies 
 TOOL_AIR ?= github.com/air-verse/air@latest
@@ -25,16 +25,23 @@ TOOL_GODOC ?= golang.org/x/tools/cmd/godoc@latest
 TOOL_STRINGER ?= golang.org/x/tools/cmd/stringer@latest
 TOOL_GOSEC ?= github.com/securego/gosec/v2/cmd/gosec@latest
 TOOL_GOVULNCHECK ?= golang.org/x/vuln/cmd/govulncheck@latest
-TOOL_GOLANGCI_LINT ?= github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+TOOL_GOLANGCI_LINT ?= github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.3.0
 TOOL_GOPLS ?= golang.org/x/tools/gopls@latest
 TOOL_GOPLS_MODERNIZE ?= golang.org/x/tools/gopls/internal/analysis/modernize/cmd/modernize@latest
+TOOL_SCC ?= github.com/boyter/scc/v3@latest
+
+CMD_TOOL_SCC = scc
 
 # Get all the simple variables defined in the make run so far
 # Allows to compute values dynamically
 MAKE_VARS := $(filter-out $(EXTERNAL_VARS), $(.VARIABLES))
 
-TOOLS := $(foreach tool,$(filter TOOL_%,$(MAKE_VARS)), $(shell echo $($(tool))))
-TOOL_CMDS := $(foreach tool, $(TOOLS), $(shell echo $(tool) | sed 's/^.*\/\(.*\)@.*/\1/g'))
+# List of all the tools urls
+TOOLS_VARS := $(filter TOOL_%,$(MAKE_VARS))
+# List all the tools install urls
+TOOLS := $(foreach tool, $(TOOLS_VARS), $(shell echo $($(tool))))
+# List all the commands from the tools (supports override via CMD_$(TOOL_<name>)
+TOOL_CMDS := $(foreach tool, $(TOOLS_VARS), $(if $(value CMD_$(tool)), $(CMD_$(tool)), $(shell echo $($(tool)) | sed 's/^.*\/\(.*\)@.*/\1/g')))
 
 define newline
 
@@ -44,215 +51,282 @@ endef
 # Default target
 .DEFAULT_GOAL := help
 
-# Help target
-.PHONY: help
-help: ## Show this help message
-	@echo 'Usage: make [target]'
-	@echo ''
-	@echo 'Targets:'
-	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "  %-15s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
-
-
-
-###########################
-# Build & Release targets #
-###########################
-
-.PHONY: codegen
-codegen: check-tools ## Auto-generates code where relevant (like stringer) 
-	@echo "Auto-generating code..."
-	go generate ./...
-
-.PHONY: build-prepare
-build-prepare: check ## Prepares for build execution
-
-.PHONY: build
-build: codegen ## Local build, minimal slowdowns
-	@echo "Building $(BINARY_NAME)..."
-	$(GOBUILD) $(LDFLAGS) -o $(BUILD_DIR)/$(BINARY_NAME) $(MAIN_FILE)
-
-.PHONY: build-linux
-build-linux: build-prepare ## Build for Linux
-	@echo "Building for Linux..."
-	GOOS=linux GOARCH=amd64 CGO_ENABLED=0 $(GOBUILD) $(LDFLAGS) -o $(BUILD_DIR)/$(BINARY_NAME)-linux $(MAIN_FILE)
-
-.PHONY: build-mac
-build-mac: build-prepare ## Build for macOS
-	@echo "Building for macOS..."
-	GOOS=darwin GOARCH=amd64 $(GOBUILD) $(LDFLAGS) -o $(BUILD_DIR)/$(BINARY_NAME)-mac $(MAIN_FILE)
-
-.PHONY: build-windows
-build-windows: build-prepare ## Build for Windows
-	@echo "Building for Windows..."
-	GOOS=windows GOARCH=amd64 $(GOBUILD) $(LDFLAGS) -o $(BUILD_DIR)/$(BINARY_NAME)-windows.exe $(MAIN_FILE)
-
-.PHONY: build-all
-build-all: build-prepare build-linux build-mac build-windows ## Build the application for multiple platforms
-	@echo "Building for multiple platforms..."
-	@mkdir -p $(BUILD_DIR)
-	GOOS=linux GOARCH=amd64 $(GOBUILD) $(LDFLAGS) -o $(BUILD_DIR)/$(BINARY_NAME)-linux-amd64 $(MAIN_FILE)
-	GOOS=linux GOARCH=arm64 $(GOBUILD) $(LDFLAGS) -o $(BUILD_DIR)/$(BINARY_NAME)-linux-arm64 $(MAIN_FILE)
-	GOOS=darwin GOARCH=amd64 $(GOBUILD) $(LDFLAGS) -o $(BUILD_DIR)/$(BINARY_NAME)-darwin-amd64 $(MAIN_FILE)
-	GOOS=darwin GOARCH=arm64 $(GOBUILD) $(LDFLAGS) -o $(BUILD_DIR)/$(BINARY_NAME)-darwin-arm64 $(MAIN_FILE)
-	GOOS=windows GOARCH=amd64 $(GOBUILD) $(LDFLAGS) -o $(BUILD_DIR)/$(BINARY_NAME)-windows-amd64.exe $(MAIN_FILE)
-
-.PHONY: release
-release: clean build-all ## Create release builds
-	@echo "Creating release builds..."
-	@mkdir -p release
-	@cd $(BUILD_DIR) && for file in *; do \
-		tar -czf ../release/$$file.tar.gz $$file; \
-	done
-	@echo "Release artifacts created in release/ directory"
-
-#################
-# Clean targets #
-#################
-
+###  
+### Build Tasks:
+#
 .PHONY: clean
-clean: ## Clean build artifacts
+## Clean build artifacts
+clean: 
 	@echo "Cleaning build artifacts..."
 	$(GOCLEAN)
 	rm -rf $(BUILD_DIR)
 	rm -f $(BINARY_NAME)
 	# rm -f $(BINARY_UNIX)
 
-################
-# Test targets #
-################
+.PHONY: build
+## Local default build
+build: build-prepare
+	@echo "Building $(BINARY_NAME)..."
+	$(GOBUILD) $(LDFLAGS) -o $(BUILD_DIR)/$(BINARY_NAME) $(MAIN_FILE)
+
+.PHONY: build-all
+## Build for supported platforms
+build-all: build-prepare build-linux build-mac build-windows 
+	@echo "Building for multiple platforms... done"
+	@mkdir -p $(BUILD_DIR)
+
+.PHONY: release
+## Create release builds
+release: clean build-all 
+	@echo "Creating release builds..."
+	@mkdir -p $(RELEASE_DIR)
+	@cd $(BUILD_DIR) && for file in *; do \
+		tar -czf ../$(RELEASE_DIR)/$$file.tar.gz $$file; \
+	done
+	@echo "Release artifacts created in release/ directory"
+
+.PHONY: ci
+## Run CI pipeline
+ci: deps check build-all 
+	@echo "CI pipeline completed"
+
+.PHONY: build-prepare
+## Prepares for build execution
+build-prepare: check 
+	@mkdir -p $(BUILD_DIR)
+
+$(BUILD_DIR)/$(BINARY_NAME)-linux-amd64: build-prepare
+	GOOS=linux GOARCH=amd64 CGO_ENABLED=0 $(GOBUILD) $(LDFLAGS) -o $(BUILD_DIR)/$(BINARY_NAME)-linux-amd64 $(MAIN_FILE)
+
+$(BUILD_DIR)/$(BINARY_NAME)-linux-arm64: build-prepare
+	GOOS=linux GOARCH=arm64 CGO_ENABLED=0 $(GOBUILD) $(LDFLAGS) -o $(BUILD_DIR)/$(BINARY_NAME)-linux-arm64 $(MAIN_FILE)
+
+$(BUILD_DIR)/$(BINARY_NAME)-darwin-amd64: build-prepare
+	GOOS=darwin GOARCH=amd64 $(GOBUILD) $(LDFLAGS) -o $(BUILD_DIR)/$(BINARY_NAME)-darwin-amd64 $(MAIN_FILE)
+
+$(BUILD_DIR)/$(BINARY_NAME)-darwin-arm64: build-prepare
+	GOOS=darwin GOARCH=arm64 $(GOBUILD) $(LDFLAGS) -o $(BUILD_DIR)/$(BINARY_NAME)-darwin-arm64 $(MAIN_FILE)
+
+$(BUILD_DIR)/$(BINARY_NAME)-windows-amd64: build-prepare
+	GOOS=windows GOARCH=amd64 $(GOBUILD) $(LDFLAGS) -o $(BUILD_DIR)/$(BINARY_NAME)-windows.exe $(MAIN_FILE)
+
+.PHONY: build-linux
+## Build for Linux
+build-linux: build-prepare $(BUILD_DIR)/$(BINARY_NAME)-linux-%
+	@echo "Building for Linux... \033[32;1;4mDone\033[0m"
+
+.PHONY: build-mac
+## Build for macOS
+build-mac:  build-prepare $(BUILD_DIR)/$(BINARY_NAME)-darwin-%
+	@echo "Building for macOS... \033[32;1;4mDone\033[0m"
+
+.PHONY: build-windows
+## Build for Windows
+build-windows: build-prepare $(BUILD_DIR)/$(BINARY_NAME)-windows-%
+	@echo "Building for Windows... \033[32;1;4mDone\033[0m"
+
+
+###  
+### Dependency Tasks:
+#
+
+.PHONY: deps
+## Perform all dependencies tasks
+deps: deps-go deps-tools
+
+.PHONY: deps-go
+## Download go dependencies
+deps-go: 
+	@echo "Downloading go dependencies..."
+	$(GOMOD) download
+	@echo "Downloading go dependencies... \033[32;1;4mDone\033[0m"
+
+
+.PHONY: deps-tools
+## Install dev tools
+deps-tools: 
+	@echo "Installing dev tools..."
+	$(foreach t, $(TOOLS), \
+		$(GOCMD) install $(t) $(newline) \
+	)
+	@echo "Installing dev tools... \033[32;1;4mDone\033[0m"
+
+.PHONY: deps-update
+## Update go dependencies
+deps-update: 
+	@echo "Updating go dependencies..."
+	$(GOMOD) get -u ./...
+	$(GOMOD) tidy
+	@echo "Updating go dependencies... \033[32;1;4mDone\033[0m"
+
+###  
+### Checks & Tests Tasks:
+#
+
+.PHONY: check
+## Run all checks
+check: check-code test check-security 
+	@echo "All checks completed"
 
 .PHONY: test
-test: ## Run tests
+## Run tests
+test: 
 	@echo "Running tests..."
 	$(GOTEST) -v ./...
+	@echo "Running tests... \033[32;1;4mDone\033[0m"
 
 .PHONY: test-coverage
-test-coverage: ## Run tests with coverage
+## Run tests with coverage
+test-coverage: 
 	@echo "Running tests with coverage..."
 	$(GOTEST) -v -coverprofile=coverage.out ./...
 	$(GOCMD) tool cover -html=coverage.out -o coverage.html
 	@echo "Coverage report generated: coverage.html"
+	@echo "Running tests with coverage... \033[32;1;4mDone\033[0m"
 
-#########################
-# Dependency management #
-#########################
-
-.PHONY: deps-go
-deps-go: ## Download dependencies
-	@echo "Downloading dependencies..."
-	$(GOMOD) download
-
-.PHONY: deps-tools
-deps-tools: ## Install development tools
-	@echo "Installing development tools..."
-	$(foreach t, $(TOOLS), \
-		$(GOCMD) install $(t) $(newline) \
-	)
-
-
-.PHONY: deps
-deps: deps-go deps-tools
-
-.PHONY: deps-update
-deps-update: ## Update dependencies
-	@echo "Updating dependencies..."
-	$(GOMOD) get -u ./...
-	$(GOMOD) tidy
-
-
-####################
-# Checks & Linting #
-####################
+.PHONY: codegen
+## Auto-generates (like stringer)
+codegen: check-tools  
+	@echo "Auto-generating code..."
+	go generate ./...
+	@echo "Auto-generating code... \033[32;1;4mDone\033[0m"
 
 .PHONY: check-tools
-check-tools: ## Verify all dependent tools are available
-	@echo "Verifying tool dependencies availability..."
+## Verify dev tools are installed
+check-tools: 
+	@echo "Verifying dev tools..."
 	$(foreach cmd,$(TOOL_CMDS),\
 		$(if $(shell command -v $(cmd) 2> /dev/null),,$(error Missing dependency `$(cmd)`. Install with: make deps )))
+	@echo "Verifying dev tools... \033[32;1;4mDone\033[0m"
 
 
 .PHONY: check-fmt
-check-fmt: codegen ## Format code
+## Format code
+check-fmt: codegen 
 	@echo "Formatting code..."
 	$(GOCMD) fmt ./...
+	@echo "Formatting code... \033[32;1;4mDone\033[0m"
 
 .PHONY: check-vet
-check-vet: codegen ## Vet code
+## Vet code
+check-vet: codegen 
 	@echo "Vetting code..."
 	$(GOCMD) vet ./...
+	@echo "Vetting code... \033[32;1;4mDone\033[0m"
 
 .PHONY: check-lint
-check-lint: check-tools codegen ## Run linter
+## Run linter
+check-lint: check-tools codegen 
 	@echo "Running linter..."
 	golangci-lint run
+	@echo "Running linter... \033[32;1;4mDone\033[0m"
 
 .PHONY: check-sec
-check-sec: check-tools codegen ## Run security checks
+## Run security checks
+check-sec: check-tools codegen 
 	@echo "Running security checks..."
 	gosec ./...
+	@echo "Running security checks... \033[32;1;4mDone\033[0m"
 
 .PHONY: check-vuln
-check-vuln: check-tools codegen ## Check for vulnerabilities
-	@echo "Checking for vulnerabilities..."
+## Check for vulnerabilities
+check-vuln: check-tools codegen 
+	@echo "Running vulnerability checks..."
 	govulncheck ./...
+	@echo "Running vulnerability checks... \033[32;1;4mDone\033[0m"
 
 .PHONY: check-code
-check-code: check-fmt check-vet check-lint  ## Run code relevant checks
-	@echo "Code checks completed"
+## Run code relevant checks
+check-code: check-fmt check-vet check-lint  
+	@echo "Code checks... \033[32;1;4mDone\033[0m"
 	
 .PHONY: check-sec
-check-security: check-sec check-vuln ## Run security relevant checks
-	@echo "Security checks completed"
+## Run security relevant checks
+check-security: check-sec check-vuln 
+	@echo "Security checks... \033[32;1;4mDone\033[0m"
 
-.PHONY: check
-check: check-code test check-security ## Run all checks
-	@echo "All checks completed"
 
-#######################
-# Development targets #
-#######################
+###  
+### Development Tasks:
+#
 
 .PHONY: dev
-dev: codegen ## Run in development mode
+## Run in development mode
+dev: codegen 
 	@echo "Running in development mode..."
 	$(GOCMD) run $(MAIN_FILE)
 
 .PHONY: dev-watch
-dev-watch: check-tools codegen ## Run with file watching (requires air)
+## Run with file watching
+dev-watch: check-tools codegen 
 	@echo "Running with file watching..."
 	air
 
-.PHONY: install
-install: build ## Install the application
-	@echo "Installing $(BINARY_NAME)..."
-	cp $(BUILD_DIR)/$(BINARY_NAME) /usr/local/bin/$(BINARY_NAME)
+.PHONY: dev-metrics
+## Print development metrics
+dev-metrics: 
+	@echo "Generating development metrics... \033[32;1;4mDone\033[0m"
+	@git ls-files -co --exclude-standard --full-name -- . ':!:*.md' ':!:go.*' ':!:LICENSE' | scc
 
-.PHONY: uninstall
-uninstall: ## Uninstall the application
-	@echo "Uninstalling $(BINARY_NAME)..."
-	rm -f /usr/local/bin/$(BINARY_NAME)
-
-#################################
-# Additional artificats targets #
-#################################
+###  
+### Other Artifacts Tasks:
+#
 
 .PHONY: docs
-docs: check-tools ## Generate documentation
+## Generate documentation
+docs: check-tools 
 	@echo "Generating documentation..."
 	godoc -http=:6060
+	@echo "Generating documentation... \033[32;1;4mDone\033[0m"
 
-###################
-# Utility targets #
-###################
+.PHONY: install
+## Install to /usr/local/bin
+install: build 
+	@echo "Installing $(BINARY_NAME)..."
+	cp $(BUILD_DIR)/$(BINARY_NAME) /usr/local/bin/$(BINARY_NAME)
+	@echo "Installing $(BINARY_NAME)... \033[32;1;4mDone\033[0m"
+
+.PHONY: uninstall
+## Uninstall from /usr/local/bin
+uninstall: 
+	@echo "Uninstalling $(BINARY_NAME)..."
+	rm -f /usr/local/bin/$(BINARY_NAME)
+	@echo "Uninstalling $(BINARY_NAME)... \033[32;1;4mDone\033[0m"
+
+###  
+### Utility Tasks:
+#
 
 .PHONY: version
-version: ## Show version information
+## Show version information
+version : 
 	@echo "Version: $(VERSION)"
 	@echo "Commit Hash: $(COMMIT_HASH)"
 	@echo "Build Time: $(BUILD_TIME)"
 
-
-.PHONY: ci
-ci: deps check build-all ## Run CI pipeline
-	@echo "CI pipeline completed"
+.PHONY: help
+## Show this help message
+help :
+	@echo 
+	@echo Makefile help for $(BINARY_NAME)
+	@echo 
+	@echo To exclude a task from execution use the -o flag: make build -o check
+	@echo 
+	@printf "    %-17s     %-26s     [%s]\n" "Task" "Description" "Direct Dependencies"
+	@printf " ==================== ============================== ==============================\n"
+	@awk -v dir="$(BUILD_DIR)" -v app="$(BINARY_NAME)" '/^### /, /^[:alpha:][[:alnum:]_-]+\s*:/ { \
+		if ($$0 ~ /^### /){ title = substr($$0, 5); print title; prev = $$0; next; } \
+		if (prev !~ /^## /){ prev = $$0; next; } \
+		desc = substr(prev, 4); \
+		if (! match($$0, /^([[:alpha:]][[:alnum:]_-]+)\s*:(.*)/, m)) { prev = $$0; next; } \
+		task = m[1]; deps = m[2]; \
+		gsub(/\$$\(BUILD_DIR\)/, dir , task); \
+		gsub(/\$$\(BINARY_NAME\)/, app , task); \
+		gsub(/^[ \t]+/,"", deps); \
+		gsub(/[ \t]+$$/,"", deps); \
+		gsub(/\$$\(BUILD_DIR\)/, dir , deps); \
+		gsub(/\$$\(BINARY_NAME\)/, app , deps); \
+		printf "    %-17s %-30s [%s]\n", task, desc, deps; \
+		prev = $$0; \
+		}' $(MAKEFILE_LIST)
 
