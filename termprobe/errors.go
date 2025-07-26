@@ -3,14 +3,15 @@ package termprobe
 import (
 	"errors"
 	"fmt"
-
-	"github.com/tiendc/gofn"
+	"slices"
 )
 
+//go:generate stringer -type ErrorCode
 type ErrorCode int
 
 const (
-	UnknownError ErrorCode = iota
+	ZeroError ErrorCode = iota // Zero value for ErrorCode, there is no error
+	UnknownError
 	EmptyResponse
 	SendSequenceFailed
 	ReadResponseFailed
@@ -53,7 +54,7 @@ func (e *ProbeError) IsUnknownError() bool {
 }
 
 func (e *ProbeError) IsCommunicationError() bool {
-	return gofn.Contain(communicationError, e.Code)
+	return slices.Contains(communicationError, e.Code)
 }
 
 func (e *ProbeError) IsEmptyResponse() bool {
@@ -65,7 +66,7 @@ func (e *ProbeError) IsBadRequest() bool {
 }
 
 func (e *ProbeError) IsBadResponse() bool {
-	return gofn.Contain(badResponseError, e.Code)
+	return slices.Contains(badResponseError, e.Code)
 }
 
 func IsProbeErrorOrUnknown(err error, action ...ProbeActions) *ProbeError {

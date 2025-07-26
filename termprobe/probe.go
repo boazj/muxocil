@@ -317,9 +317,10 @@ func Probe() (*ProbeData, error) {
 	term, _ := os.LookupEnv("TERM")
 	termProgram, _ := os.LookupEnv("TERM_PROGRAM")
 
-	reader := bufio.NewReader(os.Stdin)
+	in := bufio.NewReader(os.Stdin)
+	out := os.Stdout
 
-	buf, err := SendDA3(os.Stdout, reader)
+	buf, err := SendDA3(out, in)
 	if err != nil {
 		return nil, err
 	}
@@ -330,7 +331,7 @@ func Probe() (*ProbeData, error) {
 		}
 	}
 
-	buf, err = SendDA2(os.Stdout, reader)
+	buf, err = SendDA2(out, in)
 	if err != nil {
 		return nil, err
 	}
@@ -341,7 +342,7 @@ func Probe() (*ProbeData, error) {
 		}
 	}
 
-	buf, err = SendXTVERSION(os.Stdout, reader)
+	buf, err = SendXTVERSION(out, in)
 	if err != nil {
 		return nil, err
 	}
@@ -352,7 +353,7 @@ func Probe() (*ProbeData, error) {
 		}
 	}
 
-	buf, err = SendXTGETTCAP(os.Stdout, reader)
+	buf, err = SendXTGETTCAP(out, in)
 	if err != nil {
 		return nil, err
 	}
@@ -363,7 +364,7 @@ func Probe() (*ProbeData, error) {
 		}
 	}
 
-	buf, err = SendDA1(os.Stdout, reader)
+	buf, err = SendDA1(out, in)
 	if err != nil {
 		return nil, err
 	}

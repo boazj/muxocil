@@ -2,6 +2,7 @@ package provider
 
 import (
 	"runtime"
+	"slices"
 
 	"github.com/boazj/muxocil/common"
 	"github.com/boazj/muxocil/provider/iterm2"
@@ -45,7 +46,7 @@ func (p *providerDefs) GetSupportedProviders() []Mux {
 		// TODO: exit
 	}
 	return utils.MapFilterValues(p.muxers, func(v Mux) bool {
-		return gofn.Contain(v.SupportedOs, curOs)
+		return slices.Contains(v.SupportedOs, curOs)
 	})
 }
 

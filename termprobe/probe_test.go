@@ -52,58 +52,70 @@ var (
 // TODO: ESC mid seq
 // TODO: C1 mid seq
 func TestXTVersionResponse(t *testing.T) {
+	msgs := map[ErrorCode]string{
+		EmptyResponse:                          "XTVERSION response sequence is empty",
+		BadResponseMissingPrefixSequence:       "XTVERSION response sequence DCS > | prefix missing",
+		BadResponseMissingTerminiationSequence: "XTVERSION response sequence ST termination suffix missing",
+	}
 	tests := []struct {
 		name    string
 		input   []byte
 		want    string
-		wantErr string
+		wantErr ErrorCode
 	}{
-		{"Empty response", Empty, "", "XTVERSION response sequence is empty"},
-
-		{"Basic 7bit", Basic7, "test", ""},
-		{"Basic 8bit", Basic8, "test", ""},
-		{"Basic 7-8", BasicMix, "test", ""},
-		{"Basic 8-7", BasicMix2, "test", ""},
-
-		{"MissingText 7", MissingText7, "", ""},
-		{"MissingText 8", MissingText8, "", ""},
-		{"MissingMixText 78", MissingMixText78, "", ""},
-		{"MissingMixText 87", MissingMixText87, "", ""},
-
-		{"MissingMid 71", MissingMid71, "", "XTVERSION response sequence DCS > | prefix missing"},
-		{"MissingMid 72", MissingMid72, "", "XTVERSION response sequence DCS > | prefix missing"},
-		{"MissingMid 73", MissingMid73, "", "XTVERSION response sequence DCS > | prefix missing"},
-		{"MissingMid 81", MissingMid81, "", "XTVERSION response sequence DCS > | prefix missing"},
-		{"MissingMid 82", MissingMid82, "", "XTVERSION response sequence DCS > | prefix missing"},
-		{"MissingMid 83", MissingMid83, "", "XTVERSION response sequence DCS > | prefix missing"},
-		{"MissingMidMix 781", MissingMidMix781, "", "XTVERSION response sequence DCS > | prefix missing"},
-		{"MissingMidMix 782", MissingMidMix782, "", "XTVERSION response sequence DCS > | prefix missing"},
-		{"MissingMidMix 783", MissingMidMix783, "", "XTVERSION response sequence DCS > | prefix missing"},
-		{"MissingMidMix 871", MissingMidMix871, "", "XTVERSION response sequence DCS > | prefix missing"},
-		{"MissingMidMix 872", MissingMidMix872, "", "XTVERSION response sequence DCS > | prefix missing"},
-		{"MissingMidMix 873", MissingMidMix873, "", "XTVERSION response sequence DCS > | prefix missing"},
-
-		{"PaddedMid 7", PaddedMid7, "", "XTVERSION response sequence DCS > | prefix missing"},
-		{"PaddedMid 8", PaddedMid8, "", "XTVERSION response sequence DCS > | prefix missing"},
-		{"PaddedMidMix 1", PaddedMidMix, "", "XTVERSION response sequence DCS > | prefix missing"},
-		{"PaddedMidMix 2", PaddedMidMix2, "", "XTVERSION response sequence DCS > | prefix missing"},
-
-		{"MissingFullPrefix 7", MissingFullPrefix7, "", "XTVERSION response sequence DCS > | prefix missing"},
-		{"MissingPartialPrefix 7", MissingPartialPrefix7, "", "XTVERSION response sequence DCS > | prefix missing"},
-		{"MissingPrefix 8", MissingPrefix8, "", "XTVERSION response sequence DCS > | prefix missing"},
-
-		{"MissingFullSuffix 7", MissingFullSuffix7, "", "XTVERSION response sequence ST termination suffix missing"},
-		{"MissingPartialSuffix 7", MissingPartialSuffix7, "", "XTVERSION response sequence ST termination suffix missing"},
-		{"MissingSuffix 8", MissingSuffix8, "", "XTVERSION response sequence ST termination suffix missing"},
+		{"Empty response", Empty, "", EmptyResponse},
+		{"Basic 7bit", Basic7, "test", ZeroError},
+		{"Basic 8bit", Basic8, "test", ZeroError},
+		{"Basic 7-8", BasicMix, "test", ZeroError},
+		{"Basic 8-7", BasicMix2, "test", ZeroError},
+		{"MissingText 7", MissingText7, "", ZeroError},
+		{"MissingText 8", MissingText8, "", ZeroError},
+		{"MissingMixText 78", MissingMixText78, "", ZeroError},
+		{"MissingMixText 87", MissingMixText87, "", ZeroError},
+		{"MissingMid 71", MissingMid71, "", BadResponseMissingPrefixSequence},
+		{"MissingMid 72", MissingMid72, "", BadResponseMissingPrefixSequence},
+		{"MissingMid 73", MissingMid73, "", BadResponseMissingPrefixSequence},
+		{"MissingMid 81", MissingMid81, "", BadResponseMissingPrefixSequence},
+		{"MissingMid 82", MissingMid82, "", BadResponseMissingPrefixSequence},
+		{"MissingMid 83", MissingMid83, "", BadResponseMissingPrefixSequence},
+		{"MissingMidMix 781", MissingMidMix781, "", BadResponseMissingPrefixSequence},
+		{"MissingMidMix 782", MissingMidMix782, "", BadResponseMissingPrefixSequence},
+		{"MissingMidMix 783", MissingMidMix783, "", BadResponseMissingPrefixSequence},
+		{"MissingMidMix 871", MissingMidMix871, "", BadResponseMissingPrefixSequence},
+		{"MissingMidMix 872", MissingMidMix872, "", BadResponseMissingPrefixSequence},
+		{"MissingMidMix 873", MissingMidMix873, "", BadResponseMissingPrefixSequence},
+		{"PaddedMid 7", PaddedMid7, "", BadResponseMissingPrefixSequence},
+		{"PaddedMid 8", PaddedMid8, "", BadResponseMissingPrefixSequence},
+		{"PaddedMidMix 1", PaddedMidMix, "", BadResponseMissingPrefixSequence},
+		{"PaddedMidMix 2", PaddedMidMix2, "", BadResponseMissingPrefixSequence},
+		{"MissingFullPrefix 7", MissingFullPrefix7, "", BadResponseMissingPrefixSequence},
+		{"MissingPartialPrefix 7", MissingPartialPrefix7, "", BadResponseMissingPrefixSequence},
+		{"MissingPrefix 8", MissingPrefix8, "", BadResponseMissingPrefixSequence},
+		{"MissingFullSuffix 7", MissingFullSuffix7, "", BadResponseMissingTerminiationSequence},
+		{"MissingPartialSuffix 7", MissingPartialSuffix7, "", BadResponseMissingTerminiationSequence},
+		{"MissingSuffix 8", MissingSuffix8, "", BadResponseMissingTerminiationSequence},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			ans, err := ParseXTVERSIONResponse(tt.input)
-			if tt.want != "" && ans != tt.want {
-				t.Errorf("got %s, want %s", ans, tt.want)
+
+			if err == nil && tt.want != "" && ans != tt.want {
+				t.Errorf("got value: %s, expected value: %s", ans, tt.want)
 			}
-			if tt.wantErr != "" && !strings.Contains(err.Error(), tt.wantErr) {
-				t.Errorf("got %v, want %s", err, tt.wantErr)
+
+			if err != nil {
+				perr := IsProbeErrorOrUnknown(err, XtVersion)
+				if tt.wantErr == ZeroError {
+					t.Errorf("got error: %x, expected value: %s", err, tt.want)
+				} else if tt.wantErr != perr.Code || msgs[tt.wantErr] != perr.Message {
+					t.Errorf(
+						"got error: %s [msg is: %s], expected error: %s [msg is: %s]",
+						perr.Code.String(),
+						perr.Message,
+						tt.wantErr.String(),
+						msgs[tt.wantErr],
+					)
+				}
 			}
 		})
 	}
