@@ -7,7 +7,7 @@ type TerminalKind int
 // Xterm: Kterm ETERM ATERM XITERM GPTERM EMU MVTERM MTERM VWM MGR SimpleTerm TERMINATOR
 // Miscellaneous: pangoterm
 // UNIX: Mosh Dvtm Screen Emacs
-// NonUNIX Consoles: Cygwin
+// NonUNIX Consoles: Cygwin.
 const (
 	Xterm TerminalKind = iota
 	OpenGl
@@ -32,7 +32,7 @@ const (
 type ProbeActions string
 
 // Definition according to notcurses https://github.com/dankamongmen/notcurses/blob/master/src/lib/in.h#L31
-// Others have been added by specific testing
+// Others have been added by specific testing.
 const (
 	None           ProbeActions = "None"
 	XtVersion      ProbeActions = "XTVERSION"

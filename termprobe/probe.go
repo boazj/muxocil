@@ -103,7 +103,7 @@ func ParseXTVERSIONResponse(b []byte) (string, error) {
 	if !termination {
 		return "", MissingSuffixError(XtVersion, "ST")
 	}
-	return string(output[:]), nil
+	return string(output), nil
 }
 
 func ParseXTGETTCAPResponse(b []byte) (string, error) {
@@ -189,7 +189,7 @@ func ParseDA1Response(b []byte) (string, string, error) {
 // returns Pp, Pv, Pc, error
 // Pp - terminal type
 // Pv - firmware version (per spec, in emulators it's application version)
-// Pc - ROM cartridge registration number (per spec should always be zero)
+// Pc - ROM cartridge registration number (per spec should always be zero).
 func ParseDA2Response(b []byte) (string, string, string, error) {
 	// CSI  > Pp ; Pv ; Pc c
 	// TODO: implement tests
@@ -248,7 +248,7 @@ func ParseDA2Response(b []byte) (string, string, string, error) {
 			fmt.Sprintf("DA2 response sequence issue, expected 3 values, got %d", colons),
 		)
 	}
-	vals := strings.Split(string(output[:]), ":")
+	vals := strings.Split(string(output), ":")
 	return vals[0], vals[1], vals[2], nil
 }
 
@@ -307,7 +307,7 @@ func ParseDA3Response(b []byte) (string, error) {
 	if !termination {
 		return "", MissingSuffixError(TDA, "ST")
 	}
-	return string(output[:]), nil
+	return string(output), nil
 }
 
 // TODO: IOCTL & ISATTY

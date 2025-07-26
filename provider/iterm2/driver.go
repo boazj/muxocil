@@ -13,7 +13,7 @@ import (
 	"github.com/charmbracelet/log"
 )
 
-// Get version of iTerm. 'iTerm2' (iTerm 2.9+) has better API
+// Get version of iTerm. 'iTerm2' (iTerm 2.9+) has better API.
 func (t *Iterm2) getVersion() (int, int, int, error) {
 	// TODO: deal with beta and nightly
 	cmd := exec.Command(

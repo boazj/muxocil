@@ -78,7 +78,7 @@ func (w *newItermWindow) createPane(parentPaneIndex int, childPaneIndex int, spl
  end tell`, parentPaneIndex, childPaneIndex, split)
 }
 
-// 'even-horizontal' layouts just split vertically across the screen
+// 'even-horizontal' layouts just split vertically across the screen.
 func (w *newItermWindow) evenHorizontal() {
 	for i := 2; i < w.panes+1; i++ {
 		w.script.Append(w.createPane(i-1, i, "vertical"))

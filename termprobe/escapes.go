@@ -4,78 +4,78 @@ import "github.com/tiendc/gofn"
 
 // https://invisible-island.net/xterm/ctlseqs/ctlseqs.html#h3-PC-Style-Function-Keys
 
-// Keys
+// Keys.
 const (
 	ESC byte = 0x1b
 )
 
-// C0 (7-bit) Control Characters
+// C0 (7-bit) Control Characters.
 var (
-	// Device Control String
+	// Device Control String.
 	DCS = []byte{ESC, 'P'}
 
-	// Control Sequence Introducer
+	// Control Sequence Introducer.
 	CSI = []byte{ESC, '['}
 
-	// String Terminator
+	// String Terminator.
 	ST = []byte{ESC, '\\'}
 )
 
-// C1 (8-bit) Control Characters
+// C1 (8-bit) Control Characters.
 var (
 
-	// Ignore
+	// Ignore.
 	C1IND byte = '\x84'
 
-	// Ignore
+	// Ignore.
 	C1NEL byte = '\x85'
 
-	// Ignore
+	// Ignore.
 	C1HTS byte = '\x88'
 
-	// Ignore
+	// Ignore.
 	C1RI byte = '\x8d'
 
-	// Ignore
+	// Ignore.
 	C1SS2 byte = '\x8e'
 
-	// Ignore
+	// Ignore.
 	C1SS3 byte = '\x8f'
 
-	// Device Control String
+	// Device Control String.
 	C1DCS byte = '\x90'
 
-	// Ignore
+	// Ignore.
 	C1SPA byte = '\x96'
 
-	// Ignore
+	// Ignore.
 	C1EPA byte = '\x97'
 
-	// Ignore
+	// Ignore.
 	C1SOS byte = '\x98'
 
-	// Ignore
+	// Ignore.
 	C1DECID byte = '\x9a'
 
-	// Control Sequence Introducer
+	// Control Sequence Introducer.
 	C1CSI byte = '\x9b'
 
-	// String Terminator
+	// String Terminator.
 	C1ST byte = '\x9c'
 
-	// Ignore
+	// Ignore.
 	C1OSC byte = '\x9d'
 
-	// Ignore
+	// Ignore.
 	C1PM byte = '\x9e'
 
-	// Ignore
+	// Ignore.
 	C1APC byte = '\x9f'
 
 	C1 = []byte{C1IND, C1NEL, C1HTS, C1RI, C1SS2, C1SS3, C1DCS, C1SPA, C1EPA, C1SOS, C1DECID, C1CSI, C1ST, C1OSC, C1PM, C1APC}
 )
 
-// Functions using CSI
+// Functions using CSI.
 var (
 
 	// CSI > Ps q
@@ -84,7 +84,7 @@ var (
 	//             DCS > | text ST
 	XTVERSION = gofn.Concat(CSI, []byte{'>', Ps, 'q'})
 
-	// See XTVERSION, only using C1 based codes
+	// See XTVERSION, only using C1 based codes.
 	C1XTVERSION = []byte{C1CSI, '>', Ps, 'q'}
 
 	// DCS + q Pt ST
@@ -126,7 +126,7 @@ var (
 	//           name (one not found in xterm's tables) ends processing of the
 	//           list of names.
 	XTGETTCAP = gofn.Concat(DCS, []byte{'+', 'q'}, TN, ST)
-	// See XTGETTCAP, only using C1 based codes
+	// See XTGETTCAP, only using C1 based codes.
 	C1XTGETTCAP = gofn.Concat([]byte{C1DCS, '+', 'q'}, TN, []byte{C1ST})
 	TN          = []byte{'5', '4', '4', 'e'}
 
@@ -136,7 +136,7 @@ var (
 	//         uses zeros for the site code and serial number in its DECRPTUI
 	//         response.
 	DA3 = gofn.Concat(CSI, []byte{'=', Ps, 'c'})
-	// See DA3, only using C1 based codes
+	// See DA3, only using C1 based codes.
 	C1DA3 = []byte{C1CSI, '=', Ps, 'c'}
 
 	// CSI > Ps c
@@ -146,14 +146,14 @@ var (
 	//         setting.  It should apply only to VT220 and up, but xterm
 	//         extends this to VT100.
 	DA2 = gofn.Concat(CSI, []byte{'>', Ps, 'c'})
-	// See DA2, only using C1 based codes
+	// See DA2, only using C1 based codes.
 	C1DA2 = []byte{C1CSI, '>', Ps, 'c'}
 
 	// CSI Ps c  Send Device Attributes (Primary DA).
 	//           Ps = 0  or omitted ⇒  request attributes from terminal.  The
 	//         response depends on the decTerminalID resource setting.
 	DA1 = gofn.Concat(CSI, []byte{Ps, 'c'})
-	// See DA1, only using C1 based codes
+	// See DA1, only using C1 based codes.
 	C1DA1 = []byte{C1CSI, Ps, 'c'}
 
 	// Common attribute used in multiple control sequences used to get information
@@ -162,6 +162,6 @@ var (
 	// PDA - request attributes from terminal
 	// SDA - request the terminal's identification code
 	// TDA - report Terminal Unit ID
-	// XTVERSION - Report xterm name and version
+	// XTVERSION - Report xterm name and version.
 	Ps byte = '0'
 )

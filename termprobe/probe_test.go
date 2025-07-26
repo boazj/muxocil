@@ -8,7 +8,7 @@ import (
 )
 
 // XTVERSION
-// DCS > | text ST
+// DCS > | text ST.
 var (
 	Empty = []byte{}
 
@@ -50,7 +50,7 @@ var (
 )
 
 // TODO: ESC mid seq
-// TODO: C1 mid seq
+// TODO: C1 mid seq.
 func TestXTVersionResponse(t *testing.T) {
 	msgs := map[ErrorCode]string{
 		EmptyResponse:                          "XTVERSION response sequence is empty",
@@ -122,7 +122,7 @@ func TestXTVersionResponse(t *testing.T) {
 }
 
 // XTGETTCAP
-// DCS 1 + r Pt ST
+// DCS 1 + r Pt ST.
 var (
 	GBasic7    = gofn.Concat(DCS, []byte{'1', '+', 'r'}, TN, []byte{'=', 't', 'e', 's', 't'}, ST)
 	GBasic8    = gofn.Concat([]byte{C1DCS, '1', '+', 'r'}, TN, []byte{'=', 't', 'e', 's', 't', C1ST})

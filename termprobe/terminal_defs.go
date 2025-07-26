@@ -10,7 +10,7 @@ var (
 
 	// TDA response: "7E565445"
 	// XTVERSION prefix: "VTE("
-	// mismatch - Support for version added in 2024
+	// mismatch - Support for version added in 2024.
 	GnomeVTE = TerminalMD{
 		"vte",
 		Xterm,
@@ -22,7 +22,7 @@ var (
 	// TDA response: "7E484445"
 	// XTVERSION prefix: "Konsole "
 	// https://github.com/KDE/konsole/blob/bebbdcdb4713598a6d1497f70803a11ea21bd208/src/Vt102Emulation.cpp#L2483
-	// mismatch - Support for version added in 2023
+	// mismatch - Support for version added in 2023.
 	KdeKonsole = TerminalMD{
 		"konsole",
 		Xterm,
@@ -33,7 +33,7 @@ var (
 
 	// TDA response: "7E7E5459"
 	// XTVERSION prefix: "terminology "
-	// mismatch - both work, depends on version
+	// mismatch - both work, depends on version.
 	Terminology = TerminalMD{
 		"terminology",
 		Xterm,
@@ -44,7 +44,7 @@ var (
 
 	// TDA response: "464F4F54"
 	// XTVERSION prefix: "foot("
-	// mismatch - both work, depends on version
+	// mismatch - both work, depends on version.
 	Foot = TerminalMD{
 		"foot",
 		Wayland,
@@ -55,7 +55,7 @@ var (
 
 	// XTGETTCAP TN resposne: "mlterm"
 	// XTVERSION prefix: "mlterm("
-	// mismatch - both work, depends on version
+	// mismatch - both work, depends on version.
 	Mlterm = TerminalMD{
 		"mlterm",
 		Xterm,
@@ -66,7 +66,7 @@ var (
 
 	// XTGETTCAP TN resposne: "xterm-kitty"
 	// XTVERSION prefix: "kitty("
-	// mismatch - both work, depends on version
+	// mismatch - both work, depends on version.
 	Kitty = TerminalMD{
 		"kitty",
 		OpenGl,
@@ -77,7 +77,7 @@ var (
 
 	// XTGETTCAP TN resposne: "xterm-ghostty"
 	// XTVERSION prefix: "ghostty "
-	// mismatch - both work, depends on version
+	// mismatch - both work, depends on version.
 	Ghostty = TerminalMD{
 		"ghostty",
 		Miscellaneous,
@@ -87,7 +87,7 @@ var (
 	}
 
 	// SDA response: "\x1b[>0;version;1c"
-	// TERM value "alacritty", can't fully trust TERM
+	// TERM value "alacritty", can't fully trust TERM.
 	Alacritty = TerminalMD{
 		"alacritty",
 		OpenGl,
@@ -98,7 +98,7 @@ var (
 
 	// SDA response: "\x1b[>83;version;"
 	// TODO: verfiy response structure is compliant
-	// TODO: mismatch
+	// TODO: mismatch.
 	GnuScreen = TerminalMD{
 		"gnuscreen",
 		UNIX,
@@ -107,7 +107,7 @@ var (
 		probeGnuScreen,
 	}
 
-	// XTVERSION prefix: "XTerm("
+	// XTVERSION prefix: "XTerm(".
 	GeneralXterm = TerminalMD{
 		"xterm",
 		Xterm,
@@ -116,7 +116,7 @@ var (
 		probeXterm,
 	}
 
-	// XTVERSION prefix: "WezTerm "
+	// XTVERSION prefix: "WezTerm ".
 	Wezterm = TerminalMD{
 		"wezterm",
 		Miscellaneous,
@@ -125,7 +125,7 @@ var (
 		probeWezterm,
 	}
 
-	// XTVERSION prefix: "contour "
+	// XTVERSION prefix: "contour ".
 	Contour = TerminalMD{
 		"contour",
 		Miscellaneous,
@@ -134,7 +134,7 @@ var (
 		probeContour,
 	}
 
-	// XTVERSION prefix: "tmux "
+	// XTVERSION prefix: "tmux ".
 	Tmux = TerminalMD{
 		"tmux",
 		UNIX,
@@ -154,7 +154,7 @@ var (
 	}
 
 	// XTVERSION prefix: "mintty "
-	// NOTE: windows
+	// NOTE: windows.
 	Mintty = TerminalMD{
 		"mintty",
 		Microsoft,
@@ -165,7 +165,7 @@ var (
 
 	// XTVERSION prefix: "Zellij("
 	// https://github.com/zellij-org/zellij/blob/48ecb0e34ff9d6d04f574237dd3a8e18e2830e6c/zellij-server/src/panes/grid.rs#L3226
-	// NOTE: darwin, linux
+	// NOTE: darwin, linux.
 	Zellij = TerminalMD{
 		"terminal",
 		KindUnknown,
@@ -182,7 +182,7 @@ var (
 		probeRxvt,
 	}
 
-	// NOTE: darwin
+	// NOTE: darwin.
 	TerminalApp = TerminalMD{
 		"terminal.app",
 		Apple,
@@ -196,23 +196,23 @@ var (
 	// Not good enough, but together it's probably ok until they will implement XTVERSION
 	// NOTE: windows
 	// TODO: not good enough
-	// WindowsTerminal = TerminalMD{"ms-terminal", Microsoft, []TermInfoReports{ReportsSDA}, []ProbingStrategy{TDA, SDA, OS}}
+	// WindowsTerminal = TerminalMD{"ms-terminal", Microsoft, []TermInfoReports{ReportsSDA}, []ProbingStrategy{TDA, SDA, OS}}.
 
 	// SDA response: "\x1b[>0;135;0c" not good enough
 	// TODO: not good enough
-	// Putty = TerminalMD{"putty", Microsoft, []TermInfoReports{ReportsSDA}, []ProbingStrategy{SDA}}
+	// Putty = TerminalMD{"putty", Microsoft, []TermInfoReports{ReportsSDA}, []ProbingStrategy{SDA}}.
 
 	// TODO: unknown
-	// DomTerm = TerminalMD{"domterm", Web, []TermInfoReports{ReportsXtermVersion, ReportsSDA}, []ProbingStrategy{}}
+	// DomTerm = TerminalMD{"domterm", Web, []TermInfoReports{ReportsXtermVersion, ReportsSDA}, []ProbingStrategy{}}.
 
 	// TODO: unknown
-	// TeraTerm = TerminalMD{"teraterm", Microsoft, []TermInfoReports{ReportsSDA}, []ProbingStrategy{}}
+	// TeraTerm = TerminalMD{"teraterm", Microsoft, []TermInfoReports{ReportsSDA}, []ProbingStrategy{}}.
 
 	// TODO: unknown
-	// Rlogin = TerminalMD{"rlogin", Microsoft, []TermInfoReports{ReportsXtermVersion, ReportsSDA}, []ProbingStrategy{}}
+	// Rlogin = TerminalMD{"rlogin", Microsoft, []TermInfoReports{ReportsXtermVersion, ReportsSDA}, []ProbingStrategy{}}.
 
 	// TODO: unknown
-	// Vscode = TerminalMD{"vscode", Microsoft, []TermInfoReports{ReportsSDA}, []ProbingStrategy{}}
+	// Vscode = TerminalMD{"vscode", Microsoft, []TermInfoReports{ReportsSDA}, []ProbingStrategy{}}.
 )
 
 func probeGnomeVTE(probe ProbeData) (bool, error) {
