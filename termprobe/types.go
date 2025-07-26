@@ -50,7 +50,7 @@ type TerminalMD struct {
 	Kind     TerminalKind      // According to Terminfo
 	reports  []TermInfoReports // According to Terminfo
 	strategy []ProbeActions    // According to notcurses & testing
-	probe    func(ProbeData) (bool, error)
+	probe    func(*ProbeData) (bool, error)
 }
 
 type ProbeData struct {

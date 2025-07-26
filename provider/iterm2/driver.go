@@ -16,10 +16,12 @@ import (
 // Get version of iTerm. 'iTerm2' (iTerm 2.9+) has better API.
 func (t *Iterm2) getVersion() (int, int, int, error) {
 	// TODO: deal with beta and nightly
+
+	// #nosec G204 -- not tainted
 	cmd := exec.Command(
 		"osascript",
 		"-e",
-		fmt.Sprintf("get version of application \"%s\"", AppName),
+		fmt.Sprintf("get version of application %q", AppName),
 	)
 	out, err := cmd.Output()
 	if err != nil {
@@ -41,10 +43,11 @@ func (t *Iterm2) getVersion() (int, int, int, error) {
 
 // Get the number of panes already existing in the current window. This is used only for old iTerm.
 func (t *Iterm2) getNumPanesInCurrentWindow() (int, error) {
+	// #nosec G204 -- not tainted
 	cmd := exec.Command(
 		"osascript",
 		"-e",
-		fmt.Sprintf("tell application \"%s\" to count sessions of current terminal", AppName),
+		fmt.Sprintf("tell application %q to count sessions of current terminal", AppName),
 	)
 	out, err := cmd.Output()
 	if err != nil {
@@ -108,7 +111,7 @@ func (t *Iterm2) initiatePane(pane int, commands []string, name string) *AppleSc
 
 	// Setting the pane name is mercifully the same across both iTerm versions.
 	if name != "" {
-		nameCommand = fmt.Sprintf("set name to \"%s\"", name)
+		nameCommand = fmt.Sprintf("set name to %q", name)
 	}
 	command := strings.Join(commands, "; ")
 	return SingletonScript(Aprintf(TellWrite, tellTarget, command, nameCommand))

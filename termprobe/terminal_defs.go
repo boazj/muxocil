@@ -215,48 +215,50 @@ var (
 	// Vscode = TerminalMD{"vscode", Microsoft, []TermInfoReports{ReportsSDA}, []ProbingStrategy{}}.
 )
 
-func probeGnomeVTE(probe ProbeData) (bool, error) {
+func probeGnomeVTE(probe *ProbeData) (bool, error) {
 	if probe.DA3 == "7E565445" {
 		if !strings.HasPrefix(probe.XtermVersion, "VTE(") {
 			// TODO: log old VTE, but not error, Support for version added in 2024
+			return true, nil
 		}
 		return true, nil
 	}
 	return false, nil
 }
 
-func probeKdeKonsole(probe ProbeData) (bool, error) {
+func probeKdeKonsole(probe *ProbeData) (bool, error) {
 	if probe.DA3 == "7E484445" {
 		if !strings.HasPrefix(probe.XtermVersion, "Konsole ") {
 			// TODO: log old konsole, but not error, Support for version added in 2023
+			return true, nil
 		}
 		return true, nil
 	}
 	return false, nil
 }
 
-func probeTerminology(probe ProbeData) (bool, error) {
+func probeTerminology(probe *ProbeData) (bool, error) {
 	return probe.DA3 == "7E7E5459" || strings.HasPrefix(probe.XtermVersion, "terminology "), nil
 }
 
-func probeFoot(probe ProbeData) (bool, error) {
+func probeFoot(probe *ProbeData) (bool, error) {
 	return probe.DA3 == "464F4F54" || strings.HasPrefix(probe.XtermVersion, "foot("), nil
 }
 
-func probeMlterm(probe ProbeData) (bool, error) {
+func probeMlterm(probe *ProbeData) (bool, error) {
 	return probe.XtermGetTcap == "mlterm" || strings.HasPrefix(probe.XtermVersion, "mlterm("), nil
 }
 
-func probeGhostty(probe ProbeData) (bool, error) {
+func probeGhostty(probe *ProbeData) (bool, error) {
 	return probe.XtermGetTcap == "xterm-ghostty" || strings.HasPrefix(probe.XtermVersion, "ghostty "), nil
 }
 
-func probeAlacritty(probe ProbeData) (bool, error) {
+func probeAlacritty(probe *ProbeData) (bool, error) {
 	// TODO: implement
 	return false, fmt.Errorf("not implemented yet")
 }
 
-func probeGnuScreen(probe ProbeData) (bool, error) {
+func probeGnuScreen(probe *ProbeData) (bool, error) {
 	// TODO: implement
 	// ver < 10000 -> NOT SCREEN
 	// int s = snprintf(verstr, sizeof(verstr), "%u.%02u.%02u", ver / 10000, ver / 100 % 100, ver % 100);
@@ -265,46 +267,46 @@ func probeGnuScreen(probe ProbeData) (bool, error) {
 	return false, fmt.Errorf("not implemented yet")
 }
 
-func probeXterm(probe ProbeData) (bool, error) {
+func probeXterm(probe *ProbeData) (bool, error) {
 	return strings.HasPrefix(probe.XtermVersion, "XTerm("), nil
 }
 
-func probeKitty(probe ProbeData) (bool, error) {
+func probeKitty(probe *ProbeData) (bool, error) {
 	if probe.OS == "windows" {
 		return false, nil
 	}
 	return probe.XtermGetTcap == "xterm-kitty" && strings.HasPrefix(probe.XtermVersion, "kitty("), nil
 }
 
-func probeTmux(probe ProbeData) (bool, error) {
+func probeTmux(probe *ProbeData) (bool, error) {
 	// TODO: what about the underlying term? is there a way to identify it?
 	return strings.HasPrefix(probe.XtermVersion, "tmux "), nil
 }
 
-func probeContour(probe ProbeData) (bool, error) {
+func probeContour(probe *ProbeData) (bool, error) {
 	return strings.HasPrefix(probe.XtermVersion, "contour "), nil
 }
 
-func probeWezterm(probe ProbeData) (bool, error) {
+func probeWezterm(probe *ProbeData) (bool, error) {
 	return strings.HasPrefix(probe.XtermVersion, "WezTerm "), nil
 }
 
-func probeIterm2(probe ProbeData) (bool, error) {
+func probeIterm2(probe *ProbeData) (bool, error) {
 	return probe.OS == "darwin" && strings.HasPrefix(probe.XtermVersion, "iTerm2 "), nil
 }
 
-func probeMintty(probe ProbeData) (bool, error) {
+func probeMintty(probe *ProbeData) (bool, error) {
 	return probe.OS == "windows" && strings.HasPrefix(probe.XtermVersion, "mintty "), nil
 }
 
-func probeZellij(probe ProbeData) (bool, error) {
+func probeZellij(probe *ProbeData) (bool, error) {
 	return probe.OS != "windows" && strings.HasPrefix(probe.XtermVersion, "Zellij("), nil
 }
 
-func probeRxvt(probe ProbeData) (bool, error) {
+func probeRxvt(probe *ProbeData) (bool, error) {
 	return strings.HasPrefix(probe.EnvTerm, "rxvt"), nil
 }
 
-func probeTerminalApp(probe ProbeData) (bool, error) {
+func probeTerminalApp(probe *ProbeData) (bool, error) {
 	return probe.OS == "darwin" && probe.EnvTermProgram == "Apple_Terminal", nil
 }

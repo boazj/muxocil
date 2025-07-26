@@ -61,7 +61,13 @@ func getProvider(cfg *common.Config, opts *common.CommandOpts) common.Provider {
 				os.Exit(common.ExitProviderFailFast)
 			}
 			if envProv.GetID() != prov.GetID() {
-				log.Error("Provider validation failed, mismatch between configured provider and the environment", "provider", prov.GetID(), "environment", envProv.GetID())
+				log.Error(
+					"Provider validation failed, mismatch between configured provider and the environment",
+					"provider",
+					prov.GetID(),
+					"environment",
+					envProv.GetID(),
+				)
 				os.Exit(common.ExitProviderValidation)
 			}
 			log.Info("Provider validation successful", "provider", cfg.UseProvider)

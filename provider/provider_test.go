@@ -39,31 +39,31 @@ import (
 // 	ReplaceIfSessionExists:         true,
 // }
 
-func hTmux() common.EnvHints {
-	return common.EnvHints{Tmux: "/tmp/tmux-1000/default,27349,0", TmuxPane: "%1"}
+func hTmux() *common.EnvHints {
+	return &common.EnvHints{Tmux: "/tmp/tmux-1000/default,27349,0", TmuxPane: "%1"}
 }
 
-func hZellij() common.EnvHints {
-	return common.EnvHints{Zellij: "0", ZellijSessionName: "name"}
+func hZellij() *common.EnvHints {
+	return &common.EnvHints{Zellij: "0", ZellijSessionName: "name"}
 }
 
-func hWezterm() common.EnvHints {
-	return common.EnvHints{}
+func hWezterm() *common.EnvHints {
+	return &common.EnvHints{}
 }
 
-func hIterm2() common.EnvHints {
-	return common.EnvHints{ItermSessionID: "w0t0p0"}
+func hIterm2() *common.EnvHints {
+	return &common.EnvHints{ItermSessionID: "w0t0p0"}
 }
 
-func hKitty() common.EnvHints {
-	return common.EnvHints{KittyWindowID: "id"}
+func hKitty() *common.EnvHints {
+	return &common.EnvHints{KittyWindowID: "id"}
 }
 
-func conf(term string, oterm string, prog string, oprog string, launch bool, hints common.EnvHints) *common.Config {
+func conf(term string, prog string, oprog string, launch bool, hints *common.EnvHints) *common.Config {
 	return &common.Config{
-		Hints:                hints,
+		Hints:                *hints,
 		Term:                 term,
-		OverrideTerm:         oterm,
+		OverrideTerm:         "",
 		TermProgram:          prog,
 		OverrideTermProgram:  oprog,
 		LaunchMultiplexerApp: launch,
@@ -89,16 +89,24 @@ func TestFromEnv(t *testing.T) {
 		w    common.MuxID
 		werr string
 	}{
-		{"TmuxXterm", conf(XTERM, "", TMUX, "", false, hTmux()), common.Tmux, ""},
-		{"TmuxScreen", conf(SCREEN, "", TMUX, "", false, hTmux()), common.Tmux, ""},
-		{"TmuxTColor", conf(TCOLOR, "", TMUX, "", false, hTmux()), common.Tmux, ""},
-		{"TmuxWithoutHints", conf(TCOLOR, "", TMUX, "", false, common.EnvHints{}), "", "cant recognize terminal emulator or multiplexer via env"},
-		{"TmuxTermZellijHints", conf(TCOLOR, "", TMUX, "", false, hZellij()), common.Zellij, ""},
-		{"Zellij", conf(XTERM, "", WEZTERM, "", false, hZellij()), common.Zellij, ""},
-		{"iTerm2", conf(XTERM, "", ITERM, "", false, hIterm2()), common.Iterm2, ""},
-		{"WezTerm", conf(XTERM, "", WEZTERM, "", false, hWezterm()), common.Wezterm, ""},
-		{"Kitty", conf(KITTY, "", "", "", false, hKitty()), common.Kitty, ""},
-		// {"Kitty", conf(KITTY, "", WEZTERM, "", false, hKitty()), common.Kitty, ""}, //FIXME: term_program is not set properly for kitty by design, so this is recognized as wezterm, nit to use ansi CSI escape code to better recognize apps
+		{"TmuxXterm", conf(XTERM, TMUX, "", false, hTmux()), common.Tmux, ""},
+		{"TmuxScreen", conf(SCREEN, TMUX, "", false, hTmux()), common.Tmux, ""},
+		{"TmuxTColor", conf(TCOLOR, TMUX, "", false, hTmux()), common.Tmux, ""},
+		{"TmuxWithoutHints", conf(
+			TCOLOR,
+			TMUX,
+			"",
+			false,
+			&common.EnvHints{},
+		), "", "cant recognize terminal emulator or multiplexer via env"},
+		{"TmuxTermZellijHints", conf(TCOLOR, TMUX, "", false, hZellij()), common.Zellij, ""},
+		{"Zellij", conf(XTERM, WEZTERM, "", false, hZellij()), common.Zellij, ""},
+		{"iTerm2", conf(XTERM, ITERM, "", false, hIterm2()), common.Iterm2, ""},
+		{"WezTerm", conf(XTERM, WEZTERM, "", false, hWezterm()), common.Wezterm, ""},
+		{"Kitty", conf(KITTY, "", "", false, hKitty()), common.Kitty, ""},
+		// FIXME: term_program is not set properly for kitty by design,
+		// so this is recognized as wezterm, nit to use ansi CSI escape code to better recognize apps
+		// {"Kitty", conf(KITTY, "", WEZTERM, "", false, hKitty()), common.Kitty, ""},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
