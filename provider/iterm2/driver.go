@@ -3,7 +3,6 @@ package iterm2
 import (
 	"errors"
 	"fmt"
-	"os"
 	"os/exec"
 	"strconv"
 	"strings"
@@ -12,6 +11,9 @@ import (
 	"github.com/boazj/muxocil/utils"
 	"github.com/charmbracelet/log"
 )
+
+//FIXME:
+//lint:file-ignore U1000 in dev
 
 // Get version of iTerm. 'iTerm2' (iTerm 2.9+) has better API.
 func (t *Iterm2) getVersion() (int, int, int, error) {
@@ -72,7 +74,7 @@ func (t *Iterm2) arrangePanes(panes int, layout common.MuxLayout) *AppleScript {
 	ac, err := win.arrangePanes()
 	if err != nil {
 		log.Fatal("unknown layout strategy ", "layout", layout)
-		os.Exit(common.ExitProviderUnknownLayout)
+		utils.ExitError(utils.ExitProviderUnknownLayout)
 	}
 	return ac
 }
@@ -88,7 +90,7 @@ func (t *Iterm2) arrangePanesOldIterm(panes int, layout common.MuxLayout) *Apple
 	ac, err := win.arrangePanes()
 	if err != nil {
 		log.Fatal("unknown layout strategy ", "layout", layout)
-		os.Exit(common.ExitProviderUnknownLayout)
+		utils.ExitError(utils.ExitProviderUnknownLayout)
 	}
 	return ac
 }
@@ -96,8 +98,6 @@ func (t *Iterm2) arrangePanesOldIterm(panes int, layout common.MuxLayout) *Apple
 // Once we have laid out the panes we need, we can now navigate
 // to the specified starting directory and run the specified
 // commands for each pane.
-//
-//lint:ignore U1000 in dev
 func (t *Iterm2) initiatePane(pane int, commands []string, name string) *AppleScript {
 	var tellTarget string
 	var nameCommand string
@@ -117,17 +117,13 @@ func (t *Iterm2) initiatePane(pane int, commands []string, name string) *AppleSc
 	return SingletonScript(Aprintf(TellWrite, tellTarget, command, nameCommand))
 }
 
-// Runs the list of commands in the current pane
-//
-//lint:ignore U1000 in dev
+// Runs the list of commands in the current pane.
 func (t *Iterm2) initiateWindow(commands []string) *AppleScript {
 	command := strings.Join(commands, "; ")
 	return SingletonScript(Aprintf(TellWrite, TargetSessionOfCurWindow, command, ""))
 }
 
-// Switch focus to the specified pane
-//
-//lint:ignore U1000 in dev
+// Switch focus to the specified pane.
 func (t *Iterm2) focusOnPane(paneIndex int) *AppleScript {
 	if paneIndex == -1 {
 		return &AppleScript{}

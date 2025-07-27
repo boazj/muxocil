@@ -3,6 +3,8 @@ package termprobe
 import (
 	"fmt"
 	"strings"
+
+	"github.com/boazj/muxocil/utils"
 )
 
 var (
@@ -272,7 +274,7 @@ func probeXterm(probe *ProbeData) (bool, error) {
 }
 
 func probeKitty(probe *ProbeData) (bool, error) {
-	if probe.OS == "windows" {
+	if probe.OS == utils.Windows {
 		return false, nil
 	}
 	return probe.XtermGetTcap == "xterm-kitty" && strings.HasPrefix(probe.XtermVersion, "kitty("), nil
@@ -292,15 +294,15 @@ func probeWezterm(probe *ProbeData) (bool, error) {
 }
 
 func probeIterm2(probe *ProbeData) (bool, error) {
-	return probe.OS == "darwin" && strings.HasPrefix(probe.XtermVersion, "iTerm2 "), nil
+	return probe.OS == utils.Darwin && strings.HasPrefix(probe.XtermVersion, "iTerm2 "), nil
 }
 
 func probeMintty(probe *ProbeData) (bool, error) {
-	return probe.OS == "windows" && strings.HasPrefix(probe.XtermVersion, "mintty "), nil
+	return probe.OS == utils.Windows && strings.HasPrefix(probe.XtermVersion, "mintty "), nil
 }
 
 func probeZellij(probe *ProbeData) (bool, error) {
-	return probe.OS != "windows" && strings.HasPrefix(probe.XtermVersion, "Zellij("), nil
+	return probe.OS != utils.Windows && strings.HasPrefix(probe.XtermVersion, "Zellij("), nil
 }
 
 func probeRxvt(probe *ProbeData) (bool, error) {
@@ -308,5 +310,5 @@ func probeRxvt(probe *ProbeData) (bool, error) {
 }
 
 func probeTerminalApp(probe *ProbeData) (bool, error) {
-	return probe.OS == "darwin" && probe.EnvTermProgram == "Apple_Terminal", nil
+	return probe.OS == utils.Darwin && probe.EnvTermProgram == "Apple_Terminal", nil
 }

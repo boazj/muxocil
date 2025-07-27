@@ -97,7 +97,7 @@ func TestXTVersionResponse(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ans, err := ParseXTVERSIONResponse(tt.input)
+			ans, err := parseXTVERSIONResponse(tt.input)
 
 			if err == nil && tt.want != "" && ans != tt.want {
 				t.Errorf("got value: %s, expected value: %s", ans, tt.want)
@@ -308,7 +308,7 @@ func TestXGetTcapResponse(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ans, err := ParseXTGETTCAPResponse(tt.input)
+			ans, err := parseXTGETTCAPResponse(tt.input)
 			if (tt.want != "" || (tt.want == "" && tt.wantErr == "")) && ans != tt.want {
 				t.Errorf("got \"%s\", want \"%s\"", ans, tt.want)
 			}

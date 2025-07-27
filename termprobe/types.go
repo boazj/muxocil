@@ -1,5 +1,8 @@
 package termprobe
 
+import "github.com/boazj/muxocil/utils"
+
+//go:generate stringer -type TerminalKind
 type TerminalKind int
 
 // Definition according to terminfo db https://invisible-island.net/ncurses/terminfo.src-sections.htm
@@ -54,7 +57,7 @@ type TerminalMD struct {
 }
 
 type ProbeData struct {
-	OS             string
+	OS             utils.GoOs
 	XtermVersion   string
 	XtermGetTcap   string
 	DA1Pp          string

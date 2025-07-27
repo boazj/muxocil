@@ -20,7 +20,7 @@ var providersCmd = &cobra.Command{
 		for _, p := range provider.ProviderDefs.GetSupportedProviders() {
 			rows = append(rows, []string{
 				p.Display,
-				string(p.Kind),
+				p.Kind.String(),
 				strings.Join(gofn.ToStringSlice[string](p.SupportedOs), ", "),
 				string(p.ID),
 			})

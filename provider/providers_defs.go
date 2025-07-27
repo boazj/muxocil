@@ -1,7 +1,6 @@
 package provider
 
 import (
-	"runtime"
 	"slices"
 
 	"github.com/boazj/muxocil/common"
@@ -35,15 +34,16 @@ func CreateProviderDefs() *providerDefs {
 
 func (p *providerDefs) GetSupportedProviders() []Mux {
 	var curOs common.OS
-	switch runtime.GOOS {
-	case "darwin":
+	switch utils.GOOS() {
+	case utils.Darwin:
 		curOs = common.MacOS
-	case "windows":
+	case utils.Windows:
 		curOs = common.Windows
-	case "linux":
+	case utils.Linux:
 		curOs = common.Linux
 	default:
 		// TODO: exit
+		curOs = common.Linux
 	}
 	return utils.MapFilterValues(p.muxers, func(v Mux) bool {
 		return slices.Contains(v.SupportedOs, curOs)

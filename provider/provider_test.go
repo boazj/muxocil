@@ -59,14 +59,14 @@ func hKitty() *common.EnvHints {
 	return &common.EnvHints{KittyWindowID: "id"}
 }
 
-func conf(term string, prog string, oprog string, launch bool, hints *common.EnvHints) *common.Config {
+func conf(term string, prog string, hints *common.EnvHints) *common.Config {
 	return &common.Config{
 		Hints:                *hints,
 		Term:                 term,
 		OverrideTerm:         "",
 		TermProgram:          prog,
-		OverrideTermProgram:  oprog,
-		LaunchMultiplexerApp: launch,
+		OverrideTermProgram:  "",
+		LaunchMultiplexerApp: false,
 	}
 }
 
@@ -89,21 +89,19 @@ func TestFromEnv(t *testing.T) {
 		w    common.MuxID
 		werr string
 	}{
-		{"TmuxXterm", conf(XTERM, TMUX, "", false, hTmux()), common.Tmux, ""},
-		{"TmuxScreen", conf(SCREEN, TMUX, "", false, hTmux()), common.Tmux, ""},
-		{"TmuxTColor", conf(TCOLOR, TMUX, "", false, hTmux()), common.Tmux, ""},
+		{"TmuxXterm", conf(XTERM, TMUX, hTmux()), common.Tmux, ""},
+		{"TmuxScreen", conf(SCREEN, TMUX, hTmux()), common.Tmux, ""},
+		{"TmuxTColor", conf(TCOLOR, TMUX, hTmux()), common.Tmux, ""},
 		{"TmuxWithoutHints", conf(
 			TCOLOR,
 			TMUX,
-			"",
-			false,
 			&common.EnvHints{},
 		), "", "cant recognize terminal emulator or multiplexer via env"},
-		{"TmuxTermZellijHints", conf(TCOLOR, TMUX, "", false, hZellij()), common.Zellij, ""},
-		{"Zellij", conf(XTERM, WEZTERM, "", false, hZellij()), common.Zellij, ""},
-		{"iTerm2", conf(XTERM, ITERM, "", false, hIterm2()), common.Iterm2, ""},
-		{"WezTerm", conf(XTERM, WEZTERM, "", false, hWezterm()), common.Wezterm, ""},
-		{"Kitty", conf(KITTY, "", "", false, hKitty()), common.Kitty, ""},
+		{"TmuxTermZellijHints", conf(TCOLOR, TMUX, hZellij()), common.Zellij, ""},
+		{"Zellij", conf(XTERM, WEZTERM, hZellij()), common.Zellij, ""},
+		{"iTerm2", conf(XTERM, ITERM, hIterm2()), common.Iterm2, ""},
+		{"WezTerm", conf(XTERM, WEZTERM, hWezterm()), common.Wezterm, ""},
+		{"Kitty", conf(KITTY, "", hKitty()), common.Kitty, ""},
 		// FIXME: term_program is not set properly for kitty by design,
 		// so this is recognized as wezterm, nit to use ansi CSI escape code to better recognize apps
 		// {"Kitty", conf(KITTY, "", WEZTERM, "", false, hKitty()), common.Kitty, ""},

@@ -24,6 +24,7 @@ func NewProvider(cfg *common.Config, mux common.MuxID, opts *common.CommandOpts)
 	return p, utils.Wrap(err, "failed to instantiate provider")
 }
 
+//nolint:staticcheck
 func FromEnv(cfg *common.Config, opts *common.CommandOpts) (common.Provider, error) {
 	muxers := ProviderDefs.GetSupportedMultiplexers()
 	emus := ProviderDefs.GetSupportedEmulators()
@@ -95,12 +96,21 @@ func Process(p common.Provider, layoutPath string) error {
 		return fmt.Errorf("encountered issue validating yaml layout: %v", err)
 	}
 	if session.Name != "" {
-		p.CreateSession(session)
+		err = p.CreateSession(session)
+		if err != nil {
+			return fmt.Errorf("encountered issue while creation a session: %v", err)
+		}
 	}
 	for i, win := range session.Windows {
-		p.CreateWindow(win, i)
+		err = p.CreateWindow(win, i)
+		if err != nil {
+			return fmt.Errorf("encountered issue while creation a window: %v", err)
+		}
 		for j, pane := range win.Panes {
-			p.CreatePane(win, pane, j)
+			err = p.CreatePane(win, pane, j)
+			if err != nil {
+				return fmt.Errorf("encountered issue while creation a pane: %v", err)
+			}
 		}
 	}
 	return nil

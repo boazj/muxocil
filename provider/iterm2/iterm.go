@@ -6,6 +6,9 @@ import (
 	"github.com/tiendc/gofn"
 )
 
+//FIXME:
+//lint:file-ignore U1000 in dev
+
 type Iterm2 struct {
 	newIterm         bool
 	here             bool

@@ -18,6 +18,7 @@ type oldItermWindow struct {
 	script AppleScript
 }
 
+// nolint: dupl
 func newOldItermWindow(panes int, layout common.MuxLayout) *oldItermWindow {
 	if layout == "" {
 		layout = common.Tiled

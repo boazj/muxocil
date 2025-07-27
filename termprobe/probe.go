@@ -1,9 +1,10 @@
 // Package termprobe helps identify the terminal emulator or terminal multiplexer according to the ECMA-48 spec
 // in addition to some fun huristcs.
 //
-// This package should be used to spoof terminals but rather to optimize behavior of tools to the working terminal
+// # This package should be used to spoof terminals but rather to optimize behavior of tools to the working terminal
 package termprobe
 
+//FIXME:
 //lint:file-ignore ST1003
 
 import (
@@ -11,13 +12,31 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"runtime"
 	"strings"
 
+	"github.com/boazj/muxocil/utils"
 	"github.com/tiendc/gofn"
 )
 
-func SendSequence(action ProbeActions, seq []byte, w io.Writer, r io.Reader) ([]byte, error) {
+var (
+	xtversionBadEsc = gofn.MapSliceToMapKeys(gofn.Filter(C1, func(t byte) bool {
+		return t != C1DCS && t != C1ST
+	}), true)
+
+	xtgettcapBadEsc = gofn.MapSliceToMapKeys(gofn.Filter(C1, func(t byte) bool {
+		return t != C1DCS && t != C1ST
+	}), true)
+
+	da2BadEsc = gofn.MapSliceToMapKeys(gofn.Filter(C1, func(t byte) bool {
+		return t != C1CSI
+	}), true)
+
+	da3BadEsc = gofn.MapSliceToMapKeys(gofn.Filter(C1, func(t byte) bool {
+		return t != C1DCS && t != C1ST
+	}), true)
+)
+
+func sendSequence(action ProbeActions, seq []byte, w io.Writer, r io.Reader) ([]byte, error) {
 	_, err := w.Write(seq)
 	if err != nil {
 		return nil, SendFailedError(action, err)
@@ -30,35 +49,33 @@ func SendSequence(action ProbeActions, seq []byte, w io.Writer, r io.Reader) ([]
 	return buf[:nb], nil
 }
 
-func SendXTVERSION(w io.Writer, r io.Reader) ([]byte, error) {
-	return SendSequence(XtVersion, XTVERSION, w, r)
+func sendXTVERSION(w io.Writer, r io.Reader) ([]byte, error) {
+	return sendSequence(XtVersion, XTVERSION, w, r)
 }
 
-func SendXTGETTCAP(w io.Writer, r io.Reader) ([]byte, error) {
-	return SendSequence(XtGetTcap, XTGETTCAP, w, r)
+func sendXTGETTCAP(w io.Writer, r io.Reader) ([]byte, error) {
+	return sendSequence(XtGetTcap, XTGETTCAP, w, r)
 }
 
-func SendDA1(w io.Writer, r io.Reader) ([]byte, error) {
-	return SendSequence(PDA, DA1, w, r)
+func sendDA1(w io.Writer, r io.Reader) ([]byte, error) {
+	return sendSequence(PDA, DA1, w, r)
 }
 
-func SendDA2(w io.Writer, r io.Reader) ([]byte, error) {
-	return SendSequence(SDA, DA2, w, r)
+func sendDA2(w io.Writer, r io.Reader) ([]byte, error) {
+	return sendSequence(SDA, DA2, w, r)
 }
 
-func SendDA3(w io.Writer, r io.Reader) ([]byte, error) {
-	return SendSequence(TDA, DA3, w, r)
+func sendDA3(w io.Writer, r io.Reader) ([]byte, error) {
+	return sendSequence(TDA, DA3, w, r)
 }
 
-func ParseXTVERSIONResponse(b []byte) (string, error) {
+// nolint: dupl
+func parseXTVERSIONResponse(b []byte) (string, error) {
 	// XTVERSION
 	// DCS > | text ST
 	if len(b) == 0 {
 		return "", EmptyResponseError(XtVersion)
 	}
-	badEsc := gofn.MapSliceToMapKeys(gofn.Filter(C1, func(t byte) bool {
-		return t != C1DCS && t != C1ST
-	}), true)
 
 	control := false
 	prefix := false
@@ -80,7 +97,7 @@ func ParseXTVERSIONResponse(b []byte) (string, error) {
 			}
 			if c == '|' && prev == '>' {
 				prefix = true
-			} else if gofn.MapGet(badEsc, c, false) {
+			} else if gofn.MapGet(xtversionBadEsc, c, false) {
 				return "", UnexpectedEscapeCodesError(XtVersion)
 			} else {
 				return "", MissingPrefixError(XtVersion, "DCS > |")
@@ -89,7 +106,7 @@ func ParseXTVERSIONResponse(b []byte) (string, error) {
 			if c == C1ST || (prev == ST[0] && c == ST[1]) {
 				termination = true
 				break
-			} else if (prev == ST[0] && c != ST[1]) || gofn.MapGet(badEsc, c, false) {
+			} else if (prev == ST[0] && c != ST[1]) || gofn.MapGet(xtversionBadEsc, c, false) {
 				return "", UnexpectedEscapeCodesError(XtVersion)
 			} else if c != ST[0] {
 				output = append(output, c)
@@ -106,15 +123,13 @@ func ParseXTVERSIONResponse(b []byte) (string, error) {
 	return string(output), nil
 }
 
-func ParseXTGETTCAPResponse(b []byte) (string, error) {
+// nolint: dupl
+func parseXTGETTCAPResponse(b []byte) (string, error) {
 	// XTGETTCAP
 	// DCS 1 + r Pt ST
 	if len(b) == 0 {
 		return "", EmptyResponseError(XtGetTcap)
 	}
-	badEsc := gofn.MapSliceToMapKeys(gofn.Filter(C1, func(t byte) bool {
-		return t != C1DCS && t != C1ST
-	}), true)
 
 	control := false
 	status := false
@@ -143,7 +158,7 @@ func ParseXTGETTCAPResponse(b []byte) (string, error) {
 			}
 			if c == 'r' && prev == '+' {
 				prefix = true
-			} else if gofn.MapGet(badEsc, c, false) {
+			} else if gofn.MapGet(xtgettcapBadEsc, c, false) {
 				return "", UnexpectedEscapeCodesError(XtGetTcap)
 			} else {
 				return "", MissingPrefixError(XtGetTcap, "DCS 1 + r")
@@ -152,7 +167,7 @@ func ParseXTGETTCAPResponse(b []byte) (string, error) {
 			if c == C1ST || (prev == ST[0] && c == ST[1]) {
 				termination = true
 				break
-			} else if (prev == ST[0] && c != ST[1]) || gofn.MapGet(badEsc, c, false) {
+			} else if (prev == ST[0] && c != ST[1]) || gofn.MapGet(xtgettcapBadEsc, c, false) {
 				return "", UnexpectedEscapeCodesError(XtGetTcap)
 			} else if c != ST[0] {
 				output = append(output, c)
@@ -177,7 +192,8 @@ func ParseXTGETTCAPResponse(b []byte) (string, error) {
 	return body, nil
 }
 
-func ParseDA1Response(b []byte) (string, string, error) {
+// nolint: dupl
+func parseDA1Response(b []byte) (string, string, error) {
 	// CSI ? Tid ; Ps c
 	// Tid standard VT id code
 	// Ps semicolon separated parameters
@@ -185,21 +201,19 @@ func ParseDA1Response(b []byte) (string, string, error) {
 	return "", "", nil
 }
 
-// ParseDA2Response parses the response sequence of a secondary device attribute request to a terminal
+// parseDA2Response parses the response sequence of a secondary device attribute request to a terminal
 // returns Pp, Pv, Pc, error
 // Pp - terminal type
 // Pv - firmware version (per spec, in emulators it's application version)
 // Pc - ROM cartridge registration number (per spec should always be zero).
-func ParseDA2Response(b []byte) (string, string, string, error) {
+// nolint: dupl
+func parseDA2Response(b []byte) (string, string, string, error) {
 	// CSI  > Pp ; Pv ; Pc c
 	// TODO: implement tests
 
 	if len(b) == 0 {
 		return "", "", "", EmptyResponseError(SDA)
 	}
-	badEsc := gofn.MapSliceToMapKeys(gofn.Filter(C1, func(t byte) bool {
-		return t != C1CSI
-	}), true)
 
 	colons := 0
 	control := false
@@ -218,7 +232,7 @@ func ParseDA2Response(b []byte) (string, string, string, error) {
 		} else if !prefix {
 			if c == '>' {
 				prefix = true
-			} else if gofn.MapGet(badEsc, c, false) {
+			} else if gofn.MapGet(da2BadEsc, c, false) {
 				return "", "", "", UnexpectedEscapeCodesError(SDA)
 			} else {
 				return "", "", "", MissingPrefixError(SDA, "CSI >")
@@ -229,7 +243,7 @@ func ParseDA2Response(b []byte) (string, string, string, error) {
 			} else if c == 'c' && colons == 2 {
 				termination = true
 				break
-			} else if gofn.MapGet(badEsc, c, false) {
+			} else if gofn.MapGet(da2BadEsc, c, false) {
 				return "", "", "", UnexpectedEscapeCodesError(SDA)
 			}
 			output = append(output, c)
@@ -252,17 +266,13 @@ func ParseDA2Response(b []byte) (string, string, string, error) {
 	return vals[0], vals[1], vals[2], nil
 }
 
-func ParseDA3Response(b []byte) (string, error) {
+// nolint: dupl
+func parseDA3Response(b []byte) (string, error) {
 	// DCS ! |  D..D ST
-
 	// TODO: implement tests
-
 	if len(b) == 0 {
 		return "", EmptyResponseError(TDA)
 	}
-	badEsc := gofn.MapSliceToMapKeys(gofn.Filter(C1, func(t byte) bool {
-		return t != C1DCS && t != C1ST
-	}), true)
 
 	control := false
 	prefix := false
@@ -284,7 +294,7 @@ func ParseDA3Response(b []byte) (string, error) {
 			}
 			if c == '|' && prev == '!' {
 				prefix = true
-			} else if gofn.MapGet(badEsc, c, false) {
+			} else if gofn.MapGet(da3BadEsc, c, false) {
 				return "", UnexpectedEscapeCodesError(TDA)
 			} else {
 				return "", MissingPrefixError(TDA, "DCS ! |")
@@ -293,7 +303,7 @@ func ParseDA3Response(b []byte) (string, error) {
 			if c == C1ST || (prev == ST[0] && c == ST[1]) {
 				termination = true
 				break
-			} else if (prev == ST[0] && c != ST[1]) || gofn.MapGet(badEsc, c, false) {
+			} else if (prev == ST[0] && c != ST[1]) || gofn.MapGet(da3BadEsc, c, false) {
 				return "", UnexpectedEscapeCodesError(TDA)
 			} else if c != ST[0] {
 				output = append(output, c)
@@ -313,62 +323,62 @@ func ParseDA3Response(b []byte) (string, error) {
 // TODO: IOCTL & ISATTY
 
 func Probe() (*ProbeData, error) {
-	goos := runtime.GOOS
+	goos := utils.GOOS()
 	term, _ := os.LookupEnv("TERM")
 	termProgram, _ := os.LookupEnv("TERM_PROGRAM")
 
 	in := bufio.NewReader(os.Stdin)
 	out := os.Stdout
 
-	buf, err := SendDA3(out, in)
+	buf, err := sendDA3(out, in)
 	if err != nil {
 		return nil, err
 	}
-	da3, err := ParseDA3Response(buf)
+	da3, err := parseDA3Response(buf)
 	if err != nil {
 		if perr := IsProbeErrorOrUnknown(err, TDA); !perr.IsEmptyResponse() {
 			return nil, perr
 		}
 	}
 
-	buf, err = SendDA2(out, in)
+	buf, err = sendDA2(out, in)
 	if err != nil {
 		return nil, err
 	}
-	da2pp, da2pv, da2pc, err := ParseDA2Response(buf)
+	da2pp, da2pv, da2pc, err := parseDA2Response(buf)
 	if err != nil {
 		if perr := IsProbeErrorOrUnknown(err, TDA); !perr.IsEmptyResponse() {
 			return nil, perr
 		}
 	}
 
-	buf, err = SendXTVERSION(out, in)
+	buf, err = sendXTVERSION(out, in)
 	if err != nil {
 		return nil, err
 	}
-	xtversion, err := ParseXTVERSIONResponse(buf)
+	xtversion, err := parseXTVERSIONResponse(buf)
 	if err != nil {
 		if perr := IsProbeErrorOrUnknown(err, TDA); !perr.IsEmptyResponse() {
 			return nil, perr
 		}
 	}
 
-	buf, err = SendXTGETTCAP(out, in)
+	buf, err = sendXTGETTCAP(out, in)
 	if err != nil {
 		return nil, err
 	}
-	xtgettcap, err := ParseXTGETTCAPResponse(buf)
+	xtgettcap, err := parseXTGETTCAPResponse(buf)
 	if err != nil {
 		if perr := IsProbeErrorOrUnknown(err, TDA); !perr.IsEmptyResponse() {
 			return nil, perr
 		}
 	}
 
-	buf, err = SendDA1(out, in)
+	buf, err = sendDA1(out, in)
 	if err != nil {
 		return nil, err
 	}
-	da1pp, da1ps, err := ParseDA1Response(buf)
+	da1pp, da1ps, err := parseDA1Response(buf)
 	if err != nil {
 		if perr := IsProbeErrorOrUnknown(err, TDA); !perr.IsEmptyResponse() {
 			return nil, perr

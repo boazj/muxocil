@@ -7,6 +7,9 @@ import (
 	"github.com/boazj/muxocil/utils"
 )
 
+//FIXME:
+//lint:file-ignore U1000 in dev
+
 type AppleScriptKeyModifiers string
 
 const (
@@ -74,7 +77,7 @@ func selectPrevPane() AsCmd {
 func pressKeystroke(key string, modifiers ...AppleScriptKeyModifiers) AsCmd {
 	mods := ""
 	if len(modifiers) == 1 {
-		mods = string(modifiers[1])
+		mods = string(modifiers[0])
 	} else if len(modifiers) > 1 {
 		mods = fmt.Sprintf("{%s}", strings.Join(utils.ToStringSlice(modifiers), ", "))
 	}

@@ -2,11 +2,10 @@ package tmux
 
 import (
 	"fmt"
-	"os"
 	"slices"
 	"strconv"
 
-	"github.com/boazj/muxocil/common"
+	"github.com/boazj/muxocil/utils"
 	"github.com/charmbracelet/log"
 )
 
@@ -114,7 +113,7 @@ func (s *SessionIdentifier) String() string {
 	case idKind:
 		if _, err := strconv.Atoi(s.value); err != nil {
 			log.Fatal("session id should be a number, found ", "value", s.value)
-			os.Exit(common.ExitProviderDataError)
+			utils.ExitError(utils.ExitProviderDataError)
 		}
 		return fmt.Sprintf("$%s", s.value)
 
@@ -125,7 +124,7 @@ func (s *SessionIdentifier) String() string {
 	case scriptKind:
 		if s.value == "" {
 			log.Fatal("session script value should be a valid string, found \"\"")
-			os.Exit(common.ExitProviderDataError)
+			utils.ExitError(utils.ExitProviderDataError)
 		}
 		return s.value
 
@@ -135,7 +134,7 @@ func (s *SessionIdentifier) String() string {
 		return ""
 	}
 	log.Fatal("session kind should be either of [id, name, script, current], found ", "kind", s.kind)
-	os.Exit(common.ExitProviderDataError)
+	utils.ExitError(utils.ExitProviderDataError)
 	return ""
 }
 
@@ -144,14 +143,14 @@ func (w *WindowIdentifier) String() string {
 	case idKind:
 		if _, err := strconv.Atoi(w.value); err != nil {
 			log.Fatal("window id should be a number, found ", "value", w.value)
-			os.Exit(common.ExitProviderDataError)
+			utils.ExitError(utils.ExitProviderDataError)
 		}
 		return fmt.Sprintf("@%s", w.value)
 
 	case indexKind:
 		if _, err := strconv.Atoi(w.value); err != nil {
 			log.Fatal("window index should be a number, found ", "value", w.value)
-			os.Exit(common.ExitProviderDataError)
+			utils.ExitError(utils.ExitProviderDataError)
 		}
 		return w.value
 
@@ -162,7 +161,7 @@ func (w *WindowIdentifier) String() string {
 	case scriptKind:
 		if w.value == "" {
 			log.Fatal("window script value should be a valid string, found \"\"")
-			os.Exit(common.ExitProviderDataError)
+			utils.ExitError(utils.ExitProviderDataError)
 		}
 		return w.value
 
@@ -173,12 +172,12 @@ func (w *WindowIdentifier) String() string {
 	case tokenKind:
 		if !isValidWindowToken(w.value) {
 			log.Fatal("window token should be a legal value, found ", "value", w.value)
-			os.Exit(common.ExitProviderDataError)
+			utils.ExitError(utils.ExitProviderDataError)
 		}
 		return w.value
 	}
 	log.Fatal("window kind should be either of [id, index, name, script, current], found ", "kind", w.kind)
-	os.Exit(common.ExitProviderDataError)
+	utils.ExitError(utils.ExitProviderDataError)
 	return ""
 }
 
@@ -187,21 +186,21 @@ func (p *PaneIdentifier) String() string {
 	case idKind:
 		if _, err := strconv.Atoi(p.value); err != nil {
 			log.Fatal("pane id should be a number, found ", "value", p.value)
-			os.Exit(common.ExitProviderDataError)
+			utils.ExitError(utils.ExitProviderDataError)
 		}
 		return fmt.Sprintf("%%%s", p.value)
 
 	case indexKind:
 		if _, err := strconv.Atoi(p.value); err != nil {
 			log.Fatal("pane index should be a number, found ", "value", p.value)
-			os.Exit(common.ExitProviderDataError)
+			utils.ExitError(utils.ExitProviderDataError)
 		}
 		return p.value
 
 	case scriptKind:
 		if p.value == "" {
 			log.Fatal("pane script value should be a valid string, found \"\"")
-			os.Exit(common.ExitProviderDataError)
+			utils.ExitError(utils.ExitProviderDataError)
 		}
 		return p.value
 
@@ -210,12 +209,12 @@ func (p *PaneIdentifier) String() string {
 	case tokenKind:
 		if !isValidPaneToken(p.value) {
 			log.Fatal("pane token should be a legal value, found ", "value", p.value)
-			os.Exit(common.ExitProviderDataError)
+			utils.ExitError(utils.ExitProviderDataError)
 		}
 		return p.value
 	}
 	log.Fatal("pane kind should be either of [id, index, script, current], found ", "kind", p.kind)
-	os.Exit(common.ExitProviderDataError)
+	utils.ExitError(utils.ExitProviderDataError)
 	return ""
 }
 

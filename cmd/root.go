@@ -6,7 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/boazj/muxocil/common"
+	"github.com/boazj/muxocil/utils"
 	"github.com/charmbracelet/log"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -34,7 +34,7 @@ func Execute() {
 	err := rootCmd.Execute()
 	if err != nil {
 		log.Fatal("General error occurred", "error", err)
-		os.Exit(common.ExitGeneralError)
+		utils.ExitError(utils.ExitGeneralError)
 	}
 }
 
@@ -100,7 +100,7 @@ func initConfig() {
 
 	if err := viper.ReadInConfig(); err != nil {
 		log.Fatal("Failed to read config file", "err", err)
-		os.Exit(common.ExitConfigFailure)
+		utils.ExitError(utils.ExitConfigFailure)
 	}
 	log.Debug("Loaded config file from", "path", viper.ConfigFileUsed())
 }

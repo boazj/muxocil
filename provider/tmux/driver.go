@@ -6,6 +6,9 @@ import (
 	"github.com/boazj/muxocil/common"
 )
 
+//FIXME:
+//lint:file-ignore U1000 in dev
+
 const CMD = "tmux"
 
 const (
@@ -14,23 +17,31 @@ const (
 	SessionWinID = "sessionwinid"
 )
 
+const (
+	FocusFlag   = "-d"
+	SessionFlag = "-s"
+	NameFlag    = "-n"
+	RootFlag    = "-c"
+	TargetFlag  = "-t"
+)
+
 func (t *Tmux) newSession(sessionName string, windowName string, rootDirectory string, focus bool) (*TargetWindow, string) {
 	sessionNameFlag := ""
 	if sessionName != "" {
-		sessionNameFlag = fmt.Sprintf("-s '%s'", sessionName)
+		sessionNameFlag = fmt.Sprintf("%s '%s'", SessionFlag, sessionName)
 	}
 
 	winNameFlag := ""
 	if windowName != "" {
-		winNameFlag = fmt.Sprintf("-n '%s'", windowName)
+		winNameFlag = fmt.Sprintf("%s '%s'", NameFlag, windowName)
 	}
 
 	root := ""
 	if rootDirectory != "" {
-		root = fmt.Sprintf("-c '%s'", rootDirectory) // TODO: consider \" instead of \' to support vars in root
+		root = fmt.Sprintf("%s '%s'", RootFlag, rootDirectory) // TODO: consider \" instead of \' to support vars in root
 	}
 
-	focusFlag := "-d"
+	focusFlag := FocusFlag
 	if focus {
 		focusFlag = ""
 	}
@@ -50,13 +61,13 @@ func (t *Tmux) newSession(sessionName string, windowName string, rootDirectory s
 func (t *Tmux) newWindow(newName string, rootDirectory string, focus bool) (*TargetWindow, string) {
 	name := ""
 	if newName != "" {
-		name = fmt.Sprintf("-n '%s'", newName)
+		name = fmt.Sprintf("%s '%s'", NameFlag, newName)
 	}
 	root := ""
 	if rootDirectory != "" {
-		root = fmt.Sprintf("-c '%s'", rootDirectory) // TODO: consider \" instead of \' to support vars in root
+		root = fmt.Sprintf("%s '%s'", RootFlag, rootDirectory) // TODO: consider \" instead of \' to support vars in root
 	}
-	focusFlag := "-d"
+	focusFlag := FocusFlag
 	if focus {
 		focusFlag = ""
 	}
@@ -72,11 +83,10 @@ func (t *Tmux) newWindow(newName string, rootDirectory string, focus bool) (*Tar
 	return &target, cmd
 }
 
-//lint:ignore U1000 in dev
 func (t *Tmux) renameWindow(window *TargetWindow, newName string) string {
 	target := ""
 	if !window.IsCurrent() {
-		target = fmt.Sprintf("-t %s", window.String())
+		target = fmt.Sprintf("%s %s", TargetFlag, window.String())
 	}
 	return fmt.Sprintf("%s rename-window %s '%s'", CMD, target, newName)
 }
@@ -84,30 +94,27 @@ func (t *Tmux) renameWindow(window *TargetWindow, newName string) string {
 func (t *Tmux) setWindowOption(window *TargetWindow, option string, value string) string {
 	target := ""
 	if !window.IsCurrent() {
-		target = fmt.Sprintf("-t %s", window.String())
+		target = fmt.Sprintf("%s %s", TargetFlag, window.String())
 	}
 	return fmt.Sprintf("%s set-window-option %s %s %s", CMD, target, option, value)
 }
 
-//lint:ignore U1000 in dev
 func (t *Tmux) listPanes(window *TargetWindow) string {
 	target := ""
 	if !window.IsCurrent() {
-		target = fmt.Sprintf("-t %s", window.String())
+		target = fmt.Sprintf("%s %s", TargetFlag, window.String())
 	}
 	return fmt.Sprintf("%s list-panes %s", CMD, target)
 }
 
-//lint:ignore U1000 in dev
 func (t *Tmux) listWindows() string {
 	return "%s list-windows"
 }
 
-//lint:ignore U1000 in dev
 func (t *Tmux) renameSession(session *TargetSession, newName string) string {
 	target := ""
 	if !session.IsCurrent() {
-		target = fmt.Sprintf("-t %s", session.String())
+		target = fmt.Sprintf("%s %s", TargetFlag, session.String())
 	}
 	return fmt.Sprintf("%s rename-session %s '%s'", CMD, target, newName)
 }
@@ -118,12 +125,11 @@ func (t *Tmux) selectLayout(window *TargetWindow, layout common.MuxLayout) strin
 	}
 	target := ""
 	if !window.IsCurrent() {
-		target = fmt.Sprintf("-t %s", window.String())
+		target = fmt.Sprintf("%s %s", TargetFlag, window.String())
 	}
 	return fmt.Sprintf("%s select-layout %s '%s'", CMD, target, layout)
 }
 
-//lint:ignore U1000 in dev
 func (t *Tmux) selectWindow(window *TargetWindow) string {
 	if window.IsCurrent() {
 		return "" // equivalent to selecting the selected window
@@ -131,7 +137,6 @@ func (t *Tmux) selectWindow(window *TargetWindow) string {
 	return fmt.Sprintf("%s select-window %s", CMD, window.String())
 }
 
-//lint:ignore U1000 in dev
 func (t *Tmux) selectPane(pane *TargetPane) string {
 	if pane.IsCurrent() {
 		return "" // equivalent to selecting the selected pane
@@ -139,7 +144,6 @@ func (t *Tmux) selectPane(pane *TargetPane) string {
 	return fmt.Sprintf("%s select-pane %s", CMD, pane.String())
 }
 
-//lint:ignore U1000 in dev
 func (t *Tmux) sendKeys(keys string) string {
 	return fmt.Sprintf("%s send-keys '%s'", CMD, keys)
 }
@@ -152,7 +156,7 @@ func (t *Tmux) sendKeysToWindow(window *TargetWindow, keys string, enter bool) s
 func (t *Tmux) sendKeysToPane(pane *TargetPane, keys string, enter bool) string {
 	target := ""
 	if !pane.IsCurrent() {
-		target = fmt.Sprintf("-t %s", pane.String())
+		target = fmt.Sprintf("%s %s", TargetFlag, pane.String())
 	}
 	execute := ""
 	if enter {
@@ -161,31 +165,28 @@ func (t *Tmux) sendKeysToPane(pane *TargetPane, keys string, enter bool) string 
 	return fmt.Sprintf("%s send-keys %s -l '%s' %s", CMD, target, keys, execute)
 }
 
-//lint:ignore U1000 in dev
 func (t *Tmux) showOptions(name string) string {
 	return fmt.Sprintf("%s show-options -gv %s", CMD, name)
 }
 
-//lint:ignore U1000 in dev
 func (t *Tmux) showWindowOptions(name string) string {
 	return fmt.Sprintf("%s show-window-options -gv %s", CMD, name)
 }
 
-//lint:ignore U1000 in dev
 func (t *Tmux) splitWindow(pane *TargetPane, rootDirecotry string, vertical bool, focus bool) (*TargetPane, string) {
 	srcTarget := ""
 	if !pane.IsCurrent() {
-		srcTarget = fmt.Sprintf("-t %s", pane.String())
+		srcTarget = fmt.Sprintf("%s %s", TargetFlag, pane.String())
 	}
 	root := ""
 	if rootDirecotry != "" {
-		root = fmt.Sprintf("-c '%s'", rootDirecotry)
+		root = fmt.Sprintf("%s '%s'", RootFlag, rootDirecotry)
 	}
 	direction := "-v"
 	if !vertical {
 		direction = "-h"
 	}
-	focusFlag := "-d"
+	focusFlag := FocusFlag
 	if focus {
 		focusFlag = ""
 	}

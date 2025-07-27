@@ -11,11 +11,12 @@ type CommandOpts struct {
 // TODO: force reuse existing layout (session)
 // TODO: understand if there is a real use-case for precommand (running command before any other thing, inside of terminal) (itermocil BC)
 
-type (
-	MuxID        string
-	ProviderType string
-	OS           string
-)
+type MuxID string
+
+//go:generate stringer -type ProviderType
+type ProviderType int
+
+type OS string
 
 const (
 	Iterm2  MuxID = "iterm2"
@@ -26,8 +27,8 @@ const (
 )
 
 const (
-	Multiplexer ProviderType = "Multiplexer"
-	Emulator    ProviderType = "Emulator"
+	Multiplexer ProviderType = iota
+	Emulator
 )
 
 const (

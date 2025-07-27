@@ -6,6 +6,9 @@ import (
 	"github.com/boazj/muxocil/common"
 )
 
+//FIXME:
+//lint:file-ignore U1000 in dev
+
 type newItermWindow struct {
 	panes        int
 	createdPanes int
@@ -17,6 +20,7 @@ type newItermWindow struct {
 	script AppleScript
 }
 
+// nolint: dupl
 func newNewItermWindow(panes int, layout common.MuxLayout) *newItermWindow {
 	if layout == "" {
 		layout = common.Tiled

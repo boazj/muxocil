@@ -34,9 +34,9 @@ var bcCmd = &cobra.Command{
 				cmd.Stderr = os.Stderr
 				if err := cmd.Run(); err != nil {
 					log.Fatal("Encountered an error while opening $EDITOR", err)
-					os.Exit(common.ExitOpenEditorError)
+					utils.ExitError(utils.ExitOpenEditorError)
 				}
-				os.Exit(common.ExitOk)
+				utils.ExitError(utils.ExitOk)
 				return
 			}
 			// TODO:
@@ -79,7 +79,7 @@ func init() {
 
 	if err := errors.Join(err1, err2, err3, err4, err5); err != nil {
 		log.Fatal("Failed to bind config", "err", err)
-		os.Exit(common.ExitConfigBindError)
+		utils.ExitError(utils.ExitConfigBindError)
 	}
 }
 

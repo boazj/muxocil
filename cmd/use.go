@@ -19,7 +19,7 @@ var useCmd = &cobra.Command{
 		cfg := common.GetConfig()
 		if len(args) == 0 {
 			log.Fatal("Parameter missing to execute command - Use command missing actual layout")
-			os.Exit(common.ExitCmdUseBadCommand)
+			utils.ExitError(utils.ExitCmdUseBadCommand)
 		}
 		layoutPath := getLayoutPath(cfg, args[0])
 		opts := &common.CommandOpts{
@@ -30,7 +30,11 @@ var useCmd = &cobra.Command{
 
 		// TODO: from env and getprovider needs to verify if you can run a multiplex program if launch_multiplexer_app is on
 		prov := getProvider(cfg, opts)
-		provider.Process(prov, layoutPath)
+		err := provider.Process(prov, layoutPath)
+		if err != nil {
+			// TODO: log and choose a better error code
+			utils.ExitError(utils.ExitProviderFailure)
+		}
 	},
 }
 
@@ -46,19 +50,19 @@ func getProvider(cfg *common.Config, opts *common.CommandOpts) common.Provider {
 		mux, ok := provider.ProviderDefs.GetProvider(common.MuxID(cfg.UseProvider))
 		if !ok {
 			log.Error("Unsupported use provider configuration", "provider", cfg.UseProvider)
-			os.Exit(common.ExitProviderFailFast)
+			utils.ExitError(utils.ExitProviderFailFast)
 		}
 		prov, err := provider.NewProvider(cfg, mux.ID, opts)
 		if err != nil {
 			log.Error("Failed to create provider", "provider", cfg.UseProvider, "error", err)
-			os.Exit(common.ExitProviderFailFast)
+			utils.ExitError(utils.ExitProviderFailFast)
 		}
 
 		if cfg.ValidateProviderFromEnv {
 			envProv, err := provider.FromEnv(cfg, opts)
 			if err != nil {
 				log.Error("Failed to create provider", "error", err)
-				os.Exit(common.ExitProviderFailFast)
+				utils.ExitError(utils.ExitProviderFailFast)
 			}
 			if envProv.GetID() != prov.GetID() {
 				log.Error(
@@ -68,7 +72,7 @@ func getProvider(cfg *common.Config, opts *common.CommandOpts) common.Provider {
 					"environment",
 					envProv.GetID(),
 				)
-				os.Exit(common.ExitProviderValidation)
+				utils.ExitError(utils.ExitProviderValidation)
 			}
 			log.Info("Provider validation successful", "provider", cfg.UseProvider)
 		}
@@ -81,7 +85,7 @@ func getProvider(cfg *common.Config, opts *common.CommandOpts) common.Provider {
 		envProv, err := provider.FromEnv(cfg, opts)
 		if err != nil {
 			log.Error("Failed to create fallback provider", "error", err)
-			os.Exit(common.ExitProviderFailure)
+			utils.ExitError(utils.ExitProviderFailure)
 		}
 		return envProv
 	}
@@ -91,7 +95,7 @@ func getProvider(cfg *common.Config, opts *common.CommandOpts) common.Provider {
 		envProv, err := provider.FromEnv(cfg, opts)
 		if err != nil {
 			log.Error("Failed to create fallback provider", "error", err)
-			os.Exit(common.ExitProviderFailure)
+			utils.ExitError(utils.ExitProviderFailure)
 		}
 		log.Info("Fallback provider creation successful", "provider", envProv.GetID())
 		return envProv
@@ -107,7 +111,7 @@ func getLayoutPath(cfg *common.Config, candidate string) string {
 
 	if !isName && !isFilename && !isFilepath {
 		log.Fatal("Invalid parameter cannot be handled")
-		os.Exit(common.ExitCmdUseBadCommand)
+		utils.ExitError(utils.ExitCmdUseBadCommand)
 	}
 	layout := ""
 	if isFilename {
@@ -128,11 +132,11 @@ func getLayoutPath(cfg *common.Config, candidate string) string {
 	}
 	if layout == "" {
 		log.Fatal("Provided layout cannot be recognized")
-		os.Exit(common.ExitCmdUseBadCommand)
+		utils.ExitError(utils.ExitCmdUseBadCommand)
 	}
 	if _, err := os.Stat(layout); err != nil {
 		log.Fatal("Cannot use layout file", "file", layout, "error", err)
-		os.Exit(common.ExitCmdUseBadFile)
+		utils.ExitError(utils.ExitCmdUseBadFile)
 	}
 	return layout
 }
