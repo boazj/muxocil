@@ -179,7 +179,8 @@ test:
 ## Run tests with coverage
 test-coverage: 
 	@echo "Running tests with coverage..."
-	$(GOTEST) -v -coverprofile=coverage.out ./...
+	$(GOTEST) -v -coverprofile=coverage.out.tmp ./...
+	cat coverage.out.tmp | grep -v "_string.go" > coverage.out
 	$(GOCMD) tool cover -html=coverage.out -o coverage.html
 	@echo "Coverage report generated: coverage.html"
 	@echo "Running tests with coverage... \033[32;1;4mDone\033[0m"
